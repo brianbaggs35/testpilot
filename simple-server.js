@@ -1,17 +1,1 @@
-const express = require('express');
-const path = require('path');
-
-const app = express();
-const port = 3000;
-
-// Serve static files from the public directory
-app.use(express.static(path.join(__dirname, 'public')));
-
-// Route for any other path should serve index.html
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
-app.listen(port, '0.0.0.0', () => {
-  console.log(`TestPilot QA Platform running at http://0.0.0.0:${port}`);
-});
+console.log('TestPilot QA Platform running on http://0.0.0.0:3000'); const express = require('express'); const app = express(); app.use(express.static('public')); app.get('*', (req, res) => { res.sendFile(__dirname + '/public/index.html'); }); app.listen(3000, '0.0.0.0', () => { console.log('Server running on port 3000'); });

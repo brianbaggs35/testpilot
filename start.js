@@ -1,39 +1,23 @@
-// Simple script to start the server in a controlled manner
-import { spawn } from 'child_process';
-import readline from 'readline';
+// TestPilot QA Platform Server
+import express from 'express';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-console.log('Starting TestPilot QA Platform...');
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-// Start the server process
-const server = spawn('node', ['server/index.js'], {
-  stdio: ['pipe', 'pipe', 'pipe', 'ipc']
+const app = express();
+const PORT = 3000;
+
+// Serve static files from public directory
+app.use(express.static('public'));
+
+// For any other route, serve index.html
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Handle server output
-server.stdout.on('data', (data) => {
-  console.log(`${data}`);
-});
-
-server.stderr.on('data', (data) => {
-  console.error(`${data}`);
-});
-
-server.on('close', (code) => {
-  console.log(`Server process exited with code ${code}`);
-});
-
-// Create interface for user input
-const rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout
-});
-
-console.log('\nServer is running. Press CTRL+C to stop.');
-
-// Keep the process alive to maintain the server
-process.on('SIGINT', () => {
-  console.log('Stopping server...');
-  server.kill();
-  rl.close();
-  process.exit(0);
+// Start server
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`TestPilot QA Platform running on http://0.0.0.0:${PORT}`);
 });
