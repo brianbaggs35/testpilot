@@ -25,23 +25,23 @@ export async function testDatabaseConnection() {
 export async function initializeDatabase() {
   const client = await pool.connect();
   try {
-    // Drop tables if they exist to ensure clean initialization
-    await client.query(`
-      DROP TABLE IF EXISTS test_suites_test_cases CASCADE;
-      DROP TABLE IF EXISTS test_plans_test_cases CASCADE;
-      DROP TABLE IF EXISTS failure_tracking CASCADE;
-      DROP TABLE IF EXISTS test_results CASCADE;
-      DROP TABLE IF EXISTS comments CASCADE;
-      DROP TABLE IF EXISTS test_cases CASCADE;
-      DROP TABLE IF EXISTS test_suites CASCADE;
-      DROP TABLE IF EXISTS test_plans CASCADE;
-      DROP TABLE IF EXISTS reports CASCADE;
-      DROP TABLE IF EXISTS report_templates CASCADE;
-      DROP TABLE IF EXISTS notifications CASCADE;
-      DROP TABLE IF EXISTS sessions CASCADE;
-      DROP TABLE IF EXISTS test_runs CASCADE;
-      DROP TABLE IF EXISTS users CASCADE;
+    // Check if tables already exist - if users table exists, we assume database is initialized
+    const tableCheck = await client.query(`
+      SELECT EXISTS (
+        SELECT FROM information_schema.tables 
+        WHERE table_schema = 'public'
+        AND table_name = 'users'
+      );
     `);
+    
+    const tablesExist = tableCheck.rows[0].exists;
+    
+    if (tablesExist) {
+      console.log('Database tables already exist, skipping initialization');
+      return true;
+    }
+    
+    console.log('Initializing database tables...');
 
     // Create users table
     await client.query(`
