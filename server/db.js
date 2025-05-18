@@ -103,13 +103,13 @@ export async function initializeDatabase() {
     // Create basic demo data
     // Create a demo admin user
     const adminExists = await client.query(`
-      SELECT * FROM users WHERE username = 'admin' LIMIT 1
+      SELECT * FROM users WHERE id = '1' LIMIT 1
     `);
     
     if (adminExists.rowCount === 0) {
       await client.query(`
-        INSERT INTO users (id, username, email, role, first_name, last_name)
-        VALUES ('1', 'admin', 'admin@testpilot.com', 'admin', 'Admin', 'User')
+        INSERT INTO users (id, email, role, first_name, last_name)
+        VALUES ('1', 'admin@testpilot.com', 'admin', 'Admin', 'User')
       `);
       
       // Create some sample test cases
