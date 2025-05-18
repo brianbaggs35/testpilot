@@ -71,8 +71,11 @@ app.get('/api/status', (req, res) => {
 // This helps with client-side routing
 app.use(express.static(path.join(__dirname, '../client/dist')));
 
-// Serve main dashboard page and handle all routes for client-side routing
-app.get('*', async (req, res) => {
+// Serve static files from the public directory
+app.use(express.static(path.join(__dirname, '../public')));
+
+// Serve main dashboard page and handle root route
+app.get('/', async (req, res) => {
   // Get real data from the database
   let testCases = [];
   let testRuns = [];
