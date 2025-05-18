@@ -1,37 +1,31 @@
-import { useQuery } from "@tanstack/react-query";
-import { User } from "../../shared/schema";
+import { useQuery } from '@tanstack/react-query';
+import { useState, useEffect } from 'react';
 
 export function useAuth() {
-  const { data: user, isLoading, error } = useQuery<User>({
+  const { data: user, isLoading } = useQuery({
     queryKey: ['/api/auth/user'],
     retry: false,
-    // Don't redirect on error (401)
-    throwOnError: false
   });
 
   return {
     user,
     isLoading,
     isAuthenticated: !!user,
-    error
   };
 }
 
 export function useUserPreferences() {
-  const { user } = useAuth();
+  const { user, isLoading } = useAuth();
+  const [defaultDashboard, setDefaultDashboard] = useState<string>('automated');
+  
+  useEffect(() => {
+    if (user && user.preferences) {
+      setDefaultDashboard(user.preferences.defaultDashboard || 'automated');
+    }
+  }, [user]);
   
   return {
-    defaultDashboard: user?.preferences?.defaultDashboard || 'manual',
-    theme: user?.preferences?.theme || 'light',
-    kanbanSettings: user?.preferences?.kanbanSettings || {
-      columns: ['to-do', 'in-progress', 'blocked', 'passed', 'failed']
-    },
-    reportSettings: user?.preferences?.reportSettings || {
-      defaultTemplateName: 'Standard',
-      includeCharts: true,
-      includeSummary: true,
-      includeTestCases: true,
-      pageSize: 'A4'
-    }
+    defaultDashboard,
+    isLoading
   };
 }

@@ -10,8 +10,9 @@ import {
   unique,
   primaryKey,
   foreignKey,
+  index,
 } from 'drizzle-orm/pg-core';
-import { relations } from 'drizzle-orm';
+import { relations, type SQL } from 'drizzle-orm';
 import { createInsertSchema } from 'drizzle-zod';
 import { z } from 'zod';
 
@@ -25,10 +26,20 @@ export const users = pgTable('users', {
   firstName: varchar('first_name'),
   lastName: varchar('last_name'),
   profileImageUrl: varchar('profile_image_url'),
-  preferences: json('preferences'),
+  preferences: json('preferences').$type<{ defaultDashboard?: string }>(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
+
+export const usersRelations = relations(users, ({ many }) => ({
+  testRuns: many(testRuns),
+  testCases: many(testCases),
+  testResults: many(testResults),
+  failureTrackings: many(failureTracking),
+  testSuites: many(testSuites),
+  testPlans: many(testPlans),
+  comments: many(comments),
+}));
 
 // Session storage table for Replit Auth
 export const sessions = pgTable(
@@ -37,6 +48,11 @@ export const sessions = pgTable(
     sid: varchar("sid").primaryKey(),
     sess: json("sess").notNull(),
     expire: timestamp("expire").notNull(),
+  },
+  (table) => {
+    return {
+      expireIdx: index("IDX_session_expire").on(table.expire),
+    };
   }
 );
 
