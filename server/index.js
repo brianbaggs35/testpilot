@@ -1,7 +1,12 @@
-const express = require('express');
-const path = require('path');
-const { registerRoutes } = require('./routes');
-const { testDatabaseConnection } = require('./db');
+import express from 'express';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { registerRoutes } from './routes.js';
+import { testDatabaseConnection } from './db.js';
+
+// Get __dirname equivalent in ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 async function main() {
   const app = express();

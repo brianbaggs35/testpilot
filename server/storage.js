@@ -1,4 +1,4 @@
-const { pool } = require('./db');
+import { pool } from './db.js';
 
 // In-memory storage as a fallback when the database is not available
 class MemStorage {
@@ -577,13 +577,24 @@ class MemStorage {
   }
 }
 
-// This will switch storage implementations based on database connection
-const storage = pool ? new DatabaseStorage() : new MemStorage();
-
 // DatabaseStorage will be implemented when connected to a database
 class DatabaseStorage {
   // Implement methods similar to MemStorage but using the database
-  // For now, we'll use MemStorage as a fallback
+  // For now, we'll use the same interface but with database operations
+  async getUser(id) {
+    // Implementation will be added later
+    return null;
+  }
+  
+  async getUserByUsername(username) {
+    // Implementation will be added later
+    return null;
+  }
+  
+  // Other methods would be implemented here
 }
 
-module.exports = { storage, MemStorage, DatabaseStorage };
+// This will switch storage implementations based on database connection
+const storage = pool ? new DatabaseStorage() : new MemStorage();
+
+export { storage, MemStorage, DatabaseStorage };

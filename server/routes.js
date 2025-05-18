@@ -1,9 +1,9 @@
-const express = require('express');
-const { createServer } = require('http');
-const { WebSocketServer } = require('ws');
-const { storage } = require('./storage');
+import express from 'express';
+import { createServer } from 'http';
+import { WebSocketServer } from 'ws';
+import { storage } from './storage.js';
 
-function registerRoutes(app) {
+export async function registerRoutes(app) {
   const router = express.Router();
   const httpServer = createServer(app);
   
@@ -446,5 +446,3 @@ function registerRoutes(app) {
 
   return httpServer;
 }
-
-module.exports = { registerRoutes };

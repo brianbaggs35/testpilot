@@ -1,4 +1,5 @@
-const { Pool } = require('pg');
+import pg from 'pg';
+const { Pool } = pg;
 
 // Check for database connection string
 if (!process.env.DATABASE_URL) {
@@ -28,7 +29,7 @@ async function testDatabaseConnection() {
   }
 }
 
-module.exports = {
+export {
   pool,
   testDatabaseConnection
 };
