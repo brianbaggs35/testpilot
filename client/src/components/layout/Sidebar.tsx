@@ -99,7 +99,7 @@ export default function Sidebar() {
                     {item.section}
                   </div>
                   <ul className="space-y-1">
-                    {item.items.map((subItem, subIdx) => (
+                    {item.items?.map((subItem, subIdx) => (
                       <li key={`${idx}-${subIdx}`}>
                         <Link href={subItem.path}>
                           <a className={`flex items-center p-2 rounded-lg group ${
