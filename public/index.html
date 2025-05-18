@@ -4,6 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>TestPilot QA Platform - Dashboard</title>
+  <meta name="description" content="Professional QA Platform for automated and manual testing with comprehensive test case management, failure tracking, and reporting">
+  
+  <!-- Open Graph tags for better social sharing -->
+  <meta property="og:title" content="TestPilot QA Platform">
+  <meta property="og:description" content="Professional QA platform for both automated and manual testing with role-based access control">
+  <meta property="og:type" content="website">
+  
   <link href="styles.css" rel="stylesheet">
 </head>
 <body>
@@ -128,72 +135,70 @@
     
     <main>
       <div class="page-header">
-        <h1 class="page-title">Dashboard</h1>
+        <h1 class="page-title">Automated Tests Dashboard</h1>
         <div class="actions">
           <select class="select">
-            <option>Last 7 days</option>
             <option>Last 30 days</option>
-            <option>Last 90 days</option>
-            <option>This year</option>
+            <option>Last 7 days</option>
+            <option>Last 24 hours</option>
+            <option>Custom range</option>
           </select>
           <button class="button">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-              <line x1="16" y1="2" x2="16" y2="6"></line>
-              <line x1="8" y1="2" x2="8" y2="6"></line>
-              <line x1="3" y1="10" x2="21" y2="10"></line>
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
             </svg>
-            May 18, 2025
+            New Test Run
           </button>
         </div>
       </div>
       
       <div class="stats-grid">
         <div class="stat-card">
-          <div class="stat-card-title">Total Test Cases</div>
-          <div class="stat-card-value">2,845</div>
+          <div class="stat-card-title">Test Runs</div>
+          <div class="stat-card-value">1,249</div>
           <div class="stat-card-trend positive">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
-              <polyline points="17 6 23 6 23 12"></polyline>
+              <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline>
+              <polyline points="16 7 22 7 22 13"></polyline>
             </svg>
             12% from last month
           </div>
         </div>
         
         <div class="stat-card">
-          <div class="stat-card-title">Test Run Success Rate</div>
-          <div class="stat-card-value">94.8%</div>
+          <div class="stat-card-title">Pass Rate</div>
+          <div class="stat-card-value">92.4%</div>
           <div class="stat-card-trend positive">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
-              <polyline points="17 6 23 6 23 12"></polyline>
+              <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline>
+              <polyline points="16 7 22 7 22 13"></polyline>
             </svg>
-            2.3% from last week
+            3.1% from last month
           </div>
         </div>
         
         <div class="stat-card">
-          <div class="stat-card-title">Average Run Duration</div>
-          <div class="stat-card-value">14m 22s</div>
-          <div class="stat-card-trend positive">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="23 18 13.5 8.5 8.5 13.5 1 6"></polyline>
-              <polyline points="17 18 23 18 23 12"></polyline>
-            </svg>
-            1m 58s faster than last week
-          </div>
-        </div>
-        
-        <div class="stat-card">
-          <div class="stat-card-title">Open Issues</div>
-          <div class="stat-card-value">28</div>
+          <div class="stat-card-title">Avg. Duration</div>
+          <div class="stat-card-value">8m 12s</div>
           <div class="stat-card-trend negative">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="23 18 13.5 8.5 8.5 13.5 1 6"></polyline>
-              <polyline points="17 18 23 18 23 12"></polyline>
+              <polyline points="22 17 13.5 8.5 8.5 13.5 2 7"></polyline>
+              <polyline points="16 17 22 17 22 11"></polyline>
             </svg>
-            5 more than last week
+            1.5% from last month
+          </div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-card-title">Active Failures</div>
+          <div class="stat-card-value">27</div>
+          <div class="stat-card-trend negative">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="22 17 13.5 8.5 8.5 13.5 2 7"></polyline>
+              <polyline points="16 17 22 17 22 11"></polyline>
+            </svg>
+            5 more than last month
           </div>
         </div>
       </div>
@@ -201,208 +206,168 @@
       <div class="dashboard-grid">
         <div class="dashboard-card">
           <div class="dashboard-card-header">
-            <h2 class="dashboard-card-title">Test Pass Rate Trend</h2>
+            <div class="dashboard-card-title">Test Execution Trend</div>
             <div class="dashboard-card-actions">
-              <button class="icon-button">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <circle cx="12" cy="12" r="1"></circle>
-                  <circle cx="19" cy="12" r="1"></circle>
-                  <circle cx="5" cy="12" r="1"></circle>
-                </svg>
-              </button>
+              <select class="select small">
+                <option>Daily</option>
+                <option>Weekly</option>
+                <option>Monthly</option>
+              </select>
             </div>
           </div>
+          
           <div class="chart-container">
             <div class="chart-placeholder">
-              <div class="bar" style="height: 60%;"></div>
-              <div class="bar" style="height: 75%;"></div>
+              <div class="bar" style="height: 40%;"></div>
               <div class="bar" style="height: 65%;"></div>
-              <div class="bar" style="height: 80%;"></div>
               <div class="bar" style="height: 85%;"></div>
               <div class="bar" style="height: 70%;"></div>
-              <div class="bar" style="height: 95%;"></div>
+              <div class="bar" style="height: 55%;"></div>
+              <div class="bar" style="height: 75%;"></div>
+              <div class="bar" style="height: 90%;"></div>
             </div>
             <div class="chart-labels">
-              <div>Mon</div>
-              <div>Tue</div>
-              <div>Wed</div>
-              <div>Thu</div>
-              <div>Fri</div>
-              <div>Sat</div>
-              <div>Sun</div>
+              <div>May 12</div>
+              <div>May 13</div>
+              <div>May 14</div>
+              <div>May 15</div>
+              <div>May 16</div>
+              <div>May 17</div>
+              <div>May 18</div>
             </div>
           </div>
+          
           <div class="dashboard-card-footer">
-            <div class="legend-item">
-              <div class="legend-marker success"></div>
-              <span>Passed</span>
-            </div>
-            <div class="legend-item">
-              <div class="legend-marker failure"></div>
-              <span>Failed</span>
-            </div>
-            <div class="legend-item">
-              <div class="legend-marker skipped"></div>
-              <span>Skipped</span>
-            </div>
+            <div>Total runs: 235</div>
+            <div>Avg. runs per day: 33.6</div>
           </div>
         </div>
         
         <div class="dashboard-card">
           <div class="dashboard-card-header">
-            <h2 class="dashboard-card-title">Test Type Distribution</h2>
+            <div class="dashboard-card-title">Result Distribution</div>
             <div class="dashboard-card-actions">
-              <button class="icon-button">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <circle cx="12" cy="12" r="1"></circle>
-                  <circle cx="19" cy="12" r="1"></circle>
-                  <circle cx="5" cy="12" r="1"></circle>
-                </svg>
-              </button>
+              <button class="button-link">View all</button>
             </div>
           </div>
+          
           <div class="donut-chart-container">
             <div class="donut-chart">
-              <div class="donut-segment" style="transform: rotate(0deg); border-color: #3b82f6;"></div>
-              <div class="donut-segment" style="transform: rotate(180deg); border-color: #10b981;"></div>
-              <div class="donut-segment" style="transform: rotate(270deg); border-color: #f97316;"></div>
-              <div class="donut-center">2,845</div>
+              <div class="donut-segment" style="border-color: #10b981; clip-path: polygon(50% 0%, 100% 0%, 100% 100%, 50% 100%, 50% 0%); transform: rotate(0deg);"></div>
+              <div class="donut-segment" style="border-color: #f59e0b; clip-path: polygon(50% 0%, 100% 0%, 100% 15%, 50% 15%, 50% 0%); transform: rotate(45deg);"></div>
+              <div class="donut-segment" style="border-color: #ef4444; clip-path: polygon(50% 0%, 100% 0%, 100% 10%, 50% 10%, 50% 0%); transform: rotate(75deg);"></div>
+              <div class="donut-center">92.4%</div>
             </div>
           </div>
+          
           <div class="dashboard-card-footer distribution">
             <div class="legend-item">
-              <div class="legend-marker" style="background-color: #3b82f6;"></div>
-              <span>UI Tests</span>
-              <span class="legend-value">1,345</span>
+              <div class="legend-marker success"></div>
+              <div>Passed</div>
+              <div class="legend-value">6,238 (92.4%)</div>
             </div>
             <div class="legend-item">
-              <div class="legend-marker" style="background-color: #10b981;"></div>
-              <span>API Tests</span>
-              <span class="legend-value">1,050</span>
+              <div class="legend-marker skipped"></div>
+              <div>Skipped</div>
+              <div class="legend-value">312 (4.6%)</div>
             </div>
             <div class="legend-item">
-              <div class="legend-marker" style="background-color: #f97316;"></div>
-              <span>Unit Tests</span>
-              <span class="legend-value">450</span>
+              <div class="legend-marker failure"></div>
+              <div>Failed</div>
+              <div class="legend-value">201 (3.0%)</div>
             </div>
           </div>
         </div>
         
         <div class="dashboard-card full-width">
           <div class="dashboard-card-header">
-            <h2 class="dashboard-card-title">Recent Test Runs</h2>
+            <div class="dashboard-card-title">Top Failing Tests</div>
             <div class="dashboard-card-actions">
-              <a href="test-runs.html" class="button-link">View All</a>
+              <button class="button-link">View all</button>
             </div>
           </div>
+          
+          <div class="horizontal-bar-chart">
+            <div class="horizontal-bar">
+              <div class="horizontal-bar-label">Login Tests</div>
+              <div class="horizontal-bar-container">
+                <div class="horizontal-bar-fill" style="width: 85%; background-color: #ef4444;"></div>
+              </div>
+              <div class="horizontal-bar-value">85%</div>
+            </div>
+            <div class="horizontal-bar">
+              <div class="horizontal-bar-label">API Auth</div>
+              <div class="horizontal-bar-container">
+                <div class="horizontal-bar-fill" style="width: 72%; background-color: #ef4444;"></div>
+              </div>
+              <div class="horizontal-bar-value">72%</div>
+            </div>
+            <div class="horizontal-bar">
+              <div class="horizontal-bar-label">Checkout</div>
+              <div class="horizontal-bar-container">
+                <div class="horizontal-bar-fill" style="width: 64%; background-color: #ef4444;"></div>
+              </div>
+              <div class="horizontal-bar-value">64%</div>
+            </div>
+            <div class="horizontal-bar">
+              <div class="horizontal-bar-label">Mobile Menu</div>
+              <div class="horizontal-bar-container">
+                <div class="horizontal-bar-fill" style="width: 51%; background-color: #ef4444;"></div>
+              </div>
+              <div class="horizontal-bar-value">51%</div>
+            </div>
+            <div class="horizontal-bar">
+              <div class="horizontal-bar-label">Search</div>
+              <div class="horizontal-bar-container">
+                <div class="horizontal-bar-fill" style="width: 43%; background-color: #ef4444;"></div>
+              </div>
+              <div class="horizontal-bar-value">43%</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="dashboard-card">
+          <div class="dashboard-card-header">
+            <div class="dashboard-card-title">Recent Test Runs</div>
+            <div class="dashboard-card-actions">
+              <button class="button-link">View all</button>
+            </div>
+          </div>
+          
           <div class="table-responsive">
             <table class="table">
               <thead>
                 <tr>
-                  <th>ID</th>
                   <th>Name</th>
                   <th>Status</th>
                   <th>Pass Rate</th>
-                  <th>Duration</th>
-                  <th>Started</th>
-                  <th>Executed By</th>
+                  <th>Date</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <td>#TR-1842</td>
-                  <td>Weekly Regression Suite</td>
+                  <td>Weekly Regression</td>
                   <td><span class="status-badge success">Passed</span></td>
-                  <td>
-                    <div class="progress-bar">
-                      <div class="progress" style="width: 98%;"></div>
-                    </div>
-                    <span class="progress-text">98%</span>
-                  </td>
-                  <td>12m 43s</td>
-                  <td>Today, 10:24 AM</td>
-                  <td>
-                    <div class="user">
-                      <div class="avatar small">A</div>
-                      <span>Automated</span>
-                    </div>
-                  </td>
+                  <td>98%</td>
+                  <td>1 hour ago</td>
                 </tr>
                 <tr>
-                  <td>#TR-1841</td>
-                  <td>Payment Gateway Integration</td>
+                  <td>API Integration</td>
                   <td><span class="status-badge warning">Partial</span></td>
-                  <td>
-                    <div class="progress-bar">
-                      <div class="progress warning" style="width: 82%;"></div>
-                    </div>
-                    <span class="progress-text">82%</span>
-                  </td>
-                  <td>8m 18s</td>
-                  <td>Today, 9:12 AM</td>
-                  <td>
-                    <div class="user">
-                      <div class="avatar small">JD</div>
-                      <span>John Doe</span>
-                    </div>
-                  </td>
+                  <td>85%</td>
+                  <td>3 hours ago</td>
                 </tr>
                 <tr>
-                  <td>#TR-1840</td>
-                  <td>User Management APIs</td>
-                  <td><span class="status-badge success">Passed</span></td>
-                  <td>
-                    <div class="progress-bar">
-                      <div class="progress" style="width: 100%;"></div>
-                    </div>
-                    <span class="progress-text">100%</span>
-                  </td>
-                  <td>5m 37s</td>
-                  <td>Yesterday, 4:45 PM</td>
-                  <td>
-                    <div class="user">
-                      <div class="avatar small">JS</div>
-                      <span>Jane Smith</span>
-                    </div>
-                  </td>
-                </tr>
-                <tr>
-                  <td>#TR-1839</td>
-                  <td>Mobile App Smoke Tests</td>
+                  <td>Mobile Smoke Tests</td>
                   <td><span class="status-badge danger">Failed</span></td>
-                  <td>
-                    <div class="progress-bar">
-                      <div class="progress danger" style="width: 67%;"></div>
-                    </div>
-                    <span class="progress-text">67%</span>
-                  </td>
-                  <td>15m 22s</td>
-                  <td>Yesterday, 2:30 PM</td>
-                  <td>
-                    <div class="user">
-                      <div class="avatar small">TJ</div>
-                      <span>Tom Johnson</span>
-                    </div>
-                  </td>
+                  <td>67%</td>
+                  <td>5 hours ago</td>
                 </tr>
                 <tr>
-                  <td>#TR-1838</td>
-                  <td>Checkout Flow</td>
+                  <td>Frontend Unit Tests</td>
                   <td><span class="status-badge success">Passed</span></td>
-                  <td>
-                    <div class="progress-bar">
-                      <div class="progress" style="width: 94%;"></div>
-                    </div>
-                    <span class="progress-text">94%</span>
-                  </td>
-                  <td>10m 05s</td>
-                  <td>Yesterday, 11:15 AM</td>
-                  <td>
-                    <div class="user">
-                      <div class="avatar small">A</div>
-                      <span>Automated</span>
-                    </div>
-                  </td>
+                  <td>100%</td>
+                  <td>6 hours ago</td>
                 </tr>
               </tbody>
             </table>
@@ -411,96 +376,79 @@
         
         <div class="dashboard-card">
           <div class="dashboard-card-header">
-            <h2 class="dashboard-card-title">Test Cases by Priority</h2>
+            <div class="dashboard-card-title">Failure Trends</div>
             <div class="dashboard-card-actions">
-              <button class="icon-button">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <circle cx="12" cy="12" r="1"></circle>
-                  <circle cx="19" cy="12" r="1"></circle>
-                  <circle cx="5" cy="12" r="1"></circle>
-                </svg>
-              </button>
+              <select class="select small">
+                <option>Last 7 days</option>
+                <option>Last 14 days</option>
+                <option>Last 30 days</option>
+              </select>
             </div>
           </div>
-          <div class="horizontal-bar-chart">
-            <div class="horizontal-bar">
-              <div class="horizontal-bar-label">Critical</div>
-              <div class="horizontal-bar-container">
-                <div class="horizontal-bar-fill" style="width: 15%; background-color: #ef4444;"></div>
-              </div>
-              <div class="horizontal-bar-value">425</div>
-            </div>
-            <div class="horizontal-bar">
-              <div class="horizontal-bar-label">High</div>
-              <div class="horizontal-bar-container">
-                <div class="horizontal-bar-fill" style="width: 28%; background-color: #f97316;"></div>
-              </div>
-              <div class="horizontal-bar-value">795</div>
-            </div>
-            <div class="horizontal-bar">
-              <div class="horizontal-bar-label">Medium</div>
-              <div class="horizontal-bar-container">
-                <div class="horizontal-bar-fill" style="width: 40%; background-color: #3b82f6;"></div>
-              </div>
-              <div class="horizontal-bar-value">1140</div>
-            </div>
-            <div class="horizontal-bar">
-              <div class="horizontal-bar-label">Low</div>
-              <div class="horizontal-bar-container">
-                <div class="horizontal-bar-fill" style="width: 17%; background-color: #10b981;"></div>
-              </div>
-              <div class="horizontal-bar-value">485</div>
-            </div>
-          </div>
-        </div>
-        
-        <div class="dashboard-card">
-          <div class="dashboard-card-header">
-            <h2 class="dashboard-card-title">Failure Trends</h2>
-            <div class="dashboard-card-actions">
-              <a href="failures.html" class="button-link">View All</a>
-            </div>
-          </div>
+          
           <div class="failure-trends">
             <div class="trend-item">
               <div class="trend-name">Authentication</div>
               <div class="trend-bar-container">
-                <div class="trend-bar" style="width: 35%; background-color: #ef4444;"></div>
+                <div class="trend-bar" style="width: 65%; background-color: #f97316;"></div>
               </div>
-              <div class="trend-value">18</div>
+              <div class="trend-value">+12</div>
             </div>
             <div class="trend-item">
               <div class="trend-name">Payment Processing</div>
               <div class="trend-bar-container">
-                <div class="trend-bar" style="width: 25%; background-color: #ef4444;"></div>
+                <div class="trend-bar" style="width: 45%; background-color: #f97316;"></div>
               </div>
-              <div class="trend-value">12</div>
+              <div class="trend-value">+8</div>
             </div>
             <div class="trend-item">
-              <div class="trend-name">User Profile</div>
+              <div class="trend-name">Data Validation</div>
               <div class="trend-bar-container">
-                <div class="trend-bar" style="width: 15%; background-color: #f97316;"></div>
+                <div class="trend-bar" style="width: 35%; background-color: #f97316;"></div>
               </div>
-              <div class="trend-value">8</div>
+              <div class="trend-value">+5</div>
             </div>
             <div class="trend-item">
-              <div class="trend-name">Product Search</div>
+              <div class="trend-name">API Response</div>
               <div class="trend-bar-container">
-                <div class="trend-bar" style="width: 12%; background-color: #f97316;"></div>
+                <div class="trend-bar" style="width: 25%; background-color: #10b981;"></div>
               </div>
-              <div class="trend-value">6</div>
+              <div class="trend-value">-3</div>
             </div>
             <div class="trend-item">
-              <div class="trend-name">Cart Management</div>
+              <div class="trend-name">Mobile Rendering</div>
               <div class="trend-bar-container">
-                <div class="trend-bar" style="width: 8%; background-color: #3b82f6;"></div>
+                <div class="trend-bar" style="width: 15%; background-color: #10b981;"></div>
               </div>
-              <div class="trend-value">4</div>
+              <div class="trend-value">-6</div>
             </div>
           </div>
         </div>
       </div>
     </main>
   </div>
+
+  <script>
+    // Simple client-side code to make the dashboard interactive
+    document.addEventListener('DOMContentLoaded', function() {
+      // Make buttons interactive
+      const buttons = document.querySelectorAll('.button, .button-link');
+      buttons.forEach(button => {
+        button.addEventListener('click', function() {
+          console.log('Button clicked:', this.textContent.trim());
+        });
+      });
+
+      // Make table rows interactive
+      const tableRows = document.querySelectorAll('tbody tr');
+      tableRows.forEach(row => {
+        row.addEventListener('click', function() {
+          const testName = this.querySelector('td').textContent;
+          console.log('Test run selected:', testName);
+          window.location.href = 'test-runs.html';
+        });
+      });
+    });
+  </script>
 </body>
 </html>
