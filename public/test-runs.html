@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test Runs - TestPilot QA Platform</title>
+  <link href="styles.css" rel="stylesheet">
+</head>
+<body>
+  <div class="layout">
+    <header>
+      <div class="logo">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="17 1 21 5 17 9"></polyline>
+          <path d="M3 11V9a4 4 0 0 1 4-4h14"></path>
+          <polyline points="7 23 3 19 7 15"></polyline>
+          <path d="M21 13v2a4 4 0 0 1-4 4H3"></path>
+        </svg>
+        TestPilot
+      </div>
+      
+      <div class="user-menu">
+        <span class="connection-status">Connected to DB</span>
+        <div class="avatar">A</div>
+      </div>
+    </header>
+    
+    <div class="sidebar">
+      <div class="sidebar-section">
+        <h3 class="sidebar-title">Dashboards</h3>
+        <a href="/" class="nav-item">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+            <line x1="3" y1="9" x2="21" y2="9"></line>
+            <line x1="9" y1="21" x2="9" y2="9"></line>
+          </svg>
+          Automated Tests
+        </a>
+        <a href="/dashboard-manual.html" class="nav-item">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="16" y1="13" x2="8" y2="13"></line>
+            <line x1="16" y1="17" x2="8" y2="17"></line>
+            <polyline points="10 9 9 9 8 9"></polyline>
+          </svg>
+          Manual Tests
+        </a>
+      </div>
+      
+      <div class="sidebar-section">
+        <h3 class="sidebar-title">Test Management</h3>
+        <a href="/test-cases.html" class="nav-item">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="12" y1="18" x2="12" y2="12"></line>
+            <line x1="9" y1="15" x2="15" y2="15"></line>
+          </svg>
+          Test Cases
+        </a>
+        <a href="/test-suites.html" class="nav-item">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+          </svg>
+          Test Suites
+        </a>
+        <a href="/test-plans.html" class="nav-item">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+            <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+            <path d="M9 14l2 2 4-4"></path>
+          </svg>
+          Test Plans
+        </a>
+      </div>
+      
+      <div class="sidebar-section">
+        <h3 class="sidebar-title">Test Execution</h3>
+        <a href="/test-runs.html" class="nav-item active">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+          </svg>
+          Test Runs
+        </a>
+        <a href="/manual-execution.html" class="nav-item">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path>
+            <line x1="4" y1="22" x2="4" y2="15"></line>
+          </svg>
+          Manual Execution
+        </a>
+        <a href="/automated-results.html" class="nav-item">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+          </svg>
+          Automated Results
+        </a>
+      </div>
+      
+      <div class="sidebar-section">
+        <h3 class="sidebar-title">Analysis</h3>
+        <a href="/failures.html" class="nav-item">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+            <line x1="12" y1="9" x2="12" y2="13"></line>
+            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+          </svg>
+          Failure Tracking
+        </a>
+        <a href="/reports.html" class="nav-item">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
+            <polyline points="13 2 13 9 20 9"></polyline>
+          </svg>
+          Reports
+        </a>
+        <a href="/metrics.html" class="nav-item">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="20" x2="18" y2="10"></line>
+            <line x1="12" y1="20" x2="12" y2="4"></line>
+            <line x1="6" y1="20" x2="6" y2="14"></line>
+          </svg>
+          Metrics
+        </a>
+      </div>
+    </div>
+    
+    <main>
+      <div class="page-header">
+        <h1 class="page-title">Test Runs</h1>
+        <button class="button">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          New Test Run
+        </button>
+      </div>
+      
+      <div class="dashboard-stats">
+        <div class="stat-card">
+          <div class="stat-label">Total Test Runs</div>
+          <div class="stat-value">42</div>
+          <div class="stat-secondary">Last 30 days</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Pass Rate</div>
+          <div class="stat-value">87.5%</div>
+          <div class="stat-secondary">2.3% increase</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Avg. Duration</div>
+          <div class="stat-value">18m 45s</div>
+          <div class="stat-secondary">Per test run</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Active Test Cases</div>
+          <div class="stat-value">573</div>
+          <div class="stat-secondary">Across all runs</div>
+        </div>
+      </div>
+      
+      <div class="table-section">
+        <div class="table-header">
+          <div class="table-title">Recent Test Runs</div>
+          <div class="table-actions">
+            <button class="button secondary">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+              </svg>
+              Filter
+            </button>
+          </div>
+        </div>
+        
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Name</th>
+              <th>Environment</th>
+              <th>Status</th>
+              <th>Tests</th>
+              <th>Pass Rate</th>
+              <th>Duration</th>
+              <th>Started At</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1</td>
+              <td>Nightly Build Test</td>
+              <td>Production</td>
+              <td><span class="status-badge status-pass">Completed</span></td>
+              <td>120</td>
+              <td>
+                <div class="test-progress" style="width: 100px; height: 10px;">
+                  <div class="progress-bar progress-passed" style="width: 87.5%;"></div>
+                </div>
+                87.5%
+              </td>
+              <td>15m 32s</td>
+              <td>2025-05-18</td>
+              <td>
+                <button class="button secondary">View</button>
+              </td>
+            </tr>
+            <tr>
+              <td>2</td>
+              <td>API Integration Tests</td>
+              <td>Staging</td>
+              <td><span class="status-badge status-pass">Completed</span></td>
+              <td>45</td>
+              <td>
+                <div class="test-progress" style="width: 100px; height: 10px;">
+                  <div class="progress-bar progress-passed" style="width: 93.3%;"></div>
+                </div>
+                93.3%
+              </td>
+              <td>4m 12s</td>
+              <td>2025-05-17</td>
+              <td>
+                <button class="button secondary">View</button>
+              </td>
+            </tr>
+            <tr>
+              <td>3</td>
+              <td>UI Regression Tests</td>
+              <td>Staging</td>
+              <td><span class="status-badge status-fail">Failed</span></td>
+              <td>78</td>
+              <td>
+                <div class="test-progress" style="width: 100px; height: 10px;">
+                  <div class="progress-bar progress-passed" style="width: 74.4%;"></div>
+                </div>
+                74.4%
+              </td>
+              <td>22m 47s</td>
+              <td>2025-05-17</td>
+              <td>
+                <button class="button secondary">View</button>
+              </td>
+            </tr>
+            <tr>
+              <td>4</td>
+              <td>Performance Tests</td>
+              <td>Development</td>
+              <td><span class="status-badge status-pass">Completed</span></td>
+              <td>12</td>
+              <td>
+                <div class="test-progress" style="width: 100px; height: 10px;">
+                  <div class="progress-bar progress-passed" style="width: 100%;"></div>
+                </div>
+                100%
+              </td>
+              <td>35m 05s</td>
+              <td>2025-05-16</td>
+              <td>
+                <button class="button secondary">View</button>
+              </td>
+            </tr>
+            <tr>
+              <td>5</td>
+              <td>Security Tests</td>
+              <td>Production</td>
+              <td><span class="status-badge status-pending">In Progress</span></td>
+              <td>32</td>
+              <td>
+                <div class="test-progress" style="width: 100px; height: 10px;">
+                  <div class="progress-bar progress-passed" style="width: 68.8%;"></div>
+                </div>
+                68.8%
+              </td>
+              <td>16m 22s</td>
+              <td>2025-05-16</td>
+              <td>
+                <button class="button secondary">View</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        
+        <div class="table-footer">
+          <div>Showing 5 of 42 test runs</div>
+          <div class="pagination">
+            <div class="pagination-item">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="15 18 9 12 15 6"></polyline>
+              </svg>
+            </div>
+            <div class="pagination-item active">1</div>
+            <div class="pagination-item">2</div>
+            <div class="pagination-item">3</div>
+            <div class="pagination-item">4</div>
+            <div class="pagination-item">5</div>
+            <div class="pagination-item">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</body>
+</html>
