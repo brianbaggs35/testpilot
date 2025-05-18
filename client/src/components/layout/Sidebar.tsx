@@ -1,140 +1,210 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation } from 'wouter';
 import { 
-  BarChart, 
-  Upload, 
-  CheckSquare, 
+  LayoutDashboard, 
+  ListChecks, 
+  FolderKanban, 
+  ClipboardCheck, 
+  PlayCircle, 
+  FileCheck, 
   AlertTriangle, 
-  ClipboardList, 
-  FileText, 
-  Users, 
+  FileBarChart2, 
+  PieChart, 
   Settings, 
-  Terminal
+  ChevronDown, 
+  ChevronRight 
 } from 'lucide-react';
 
-export default function Sidebar() {
-  const [location] = useLocation();
+interface NavItem {
+  name: string;
+  href: string;
+  icon: React.ReactNode;
+  badge?: number | string;
+  current?: boolean;
+  items?: NavItem[];
+}
 
-  const isActive = (path: string) => {
-    return location === path;
+const Sidebar = () => {
+  const [location] = useLocation();
+  const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({
+    'Test Management': true,
+    'Test Execution': true,
+    'Analysis': true,
+  });
+
+  const toggleGroup = (groupName: string) => {
+    setExpandedGroups(prev => ({
+      ...prev,
+      [groupName]: !prev[groupName]
+    }));
   };
 
-  const menuItems = [
+  const navigation: { name: string; items: NavItem[] }[] = [
     {
-      name: 'Dashboard',
-      path: '/',
-      icon: <BarChart className="w-5 h-5" />
-    },
-    {
-      name: 'Demo Features',
-      path: '/demo',
-      icon: <Terminal className="w-5 h-5" />
-    },
-    {
-      section: 'Automated Testing',
+      name: 'Overview',
       items: [
         {
-          name: 'Upload Results',
-          path: '/automated/upload',
-          icon: <Upload className="w-5 h-5" />
+          name: 'Dashboard',
+          href: '/',
+          icon: <LayoutDashboard className="h-5 w-5" />,
+          current: location === '/',
         },
+      ],
+    },
+    {
+      name: 'Test Management',
+      items: [
         {
           name: 'Test Cases',
-          path: '/automated/test-cases',
-          icon: <CheckSquare className="w-5 h-5" />
+          href: '/test-cases',
+          icon: <ListChecks className="h-5 w-5" />,
+          current: location === '/test-cases',
+          badge: 124,
         },
         {
-          name: 'Failure Analysis',
-          path: '/automated/failure-analysis',
-          icon: <AlertTriangle className="w-5 h-5" />
-        }
-      ]
-    },
-    {
-      section: 'Manual Testing',
-      items: [
+          name: 'Test Suites',
+          href: '/test-suites',
+          icon: <FolderKanban className="h-5 w-5" />,
+          current: location === '/test-suites',
+          badge: 15,
+        },
         {
           name: 'Test Plans',
-          path: '/manual/test-plans',
-          icon: <ClipboardList className="w-5 h-5" />
+          href: '/test-plans',
+          icon: <ClipboardCheck className="h-5 w-5" />,
+          current: location === '/test-plans',
+          badge: 8,
+        },
+      ],
+    },
+    {
+      name: 'Test Execution',
+      items: [
+        {
+          name: 'Test Runs',
+          href: '/test-runs',
+          icon: <PlayCircle className="h-5 w-5" />,
+          current: location === '/test-runs',
+          badge: 32,
         },
         {
-          name: 'Test Execution',
-          path: '/manual/execution',
-          icon: <CheckSquare className="w-5 h-5" />
+          name: 'Manual Execution',
+          href: '/manual-execution',
+          icon: <ClipboardCheck className="h-5 w-5" />,
+          current: location === '/manual-execution',
+        },
+        {
+          name: 'Automated Results',
+          href: '/automated-results',
+          icon: <FileCheck className="h-5 w-5" />,
+          current: location === '/automated-results',
+        },
+      ],
+    },
+    {
+      name: 'Analysis',
+      items: [
+        {
+          name: 'Failure Tracking',
+          href: '/failures',
+          icon: <AlertTriangle className="h-5 w-5" />,
+          current: location === '/failures',
+          badge: '12',
         },
         {
           name: 'Reports',
-          path: '/manual/reports',
-          icon: <FileText className="w-5 h-5" />
-        }
-      ]
-    },
-    {
-      section: 'Administration',
-      items: [
-        {
-          name: 'User Management',
-          path: '/admin/users',
-          icon: <Users className="w-5 h-5" />
+          href: '/reports',
+          icon: <FileBarChart2 className="h-5 w-5" />,
+          current: location === '/reports',
         },
         {
+          name: 'Metrics',
+          href: '/metrics',
+          icon: <PieChart className="h-5 w-5" />,
+          current: location === '/metrics',
+        },
+      ],
+    },
+    {
+      name: 'Settings',
+      items: [
+        {
           name: 'Settings',
-          path: '/admin/settings',
-          icon: <Settings className="w-5 h-5" />
-        }
-      ]
-    }
+          href: '/settings',
+          icon: <Settings className="h-5 w-5" />,
+          current: location === '/settings',
+        },
+      ],
+    },
   ];
 
   return (
-    <aside id="logo-sidebar" className="fixed top-0 left-0 z-40 w-64 h-screen pt-20 transition-transform -translate-x-full bg-white border-r border-gray-200 sm:translate-x-0" aria-label="Sidebar">
-      <div className="h-full px-3 pb-4 overflow-y-auto bg-white">
-        <ul className="space-y-2 font-medium">
-          {menuItems.map((item, idx) => {
-            if ('section' in item) {
-              return (
-                <li key={idx} className="mt-5 first:mt-0">
-                  <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 px-3">
-                    {item.section}
-                  </div>
-                  <ul className="space-y-1">
-                    {item.items?.map((subItem, subIdx) => (
-                      <li key={`${idx}-${subIdx}`}>
-                        <Link href={subItem.path}>
-                          <a className={`flex items-center p-2 rounded-lg group ${
-                            isActive(subItem.path) 
-                              ? 'bg-gray-100 text-primary' 
-                              : 'text-gray-900 hover:bg-gray-100'
-                          }`}>
-                            {subItem.icon}
-                            <span className="ml-3">{subItem.name}</span>
-                          </a>
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                </li>
-              );
-            } else {
-              return (
-                <li key={idx}>
-                  <Link href={item.path}>
-                    <a className={`flex items-center p-2 rounded-lg group ${
-                      isActive(item.path) 
-                        ? 'bg-gray-100 text-primary' 
-                        : 'text-gray-900 hover:bg-gray-100'
-                    }`}>
-                      {item.icon}
-                      <span className="ml-3">{item.name}</span>
-                    </a>
-                  </Link>
-                </li>
-              );
-            }
-          })}
-        </ul>
+    <div className="hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0 pt-16">
+      <div className="flex-1 flex flex-col min-h-0 border-r border-gray-200 bg-white">
+        <div className="flex-1 flex flex-col pt-5 pb-4 overflow-y-auto">
+          <nav className="flex-1 px-2 space-y-6">
+            {navigation.map((group) => (
+              <div key={group.name}>
+                {group.name !== 'Overview' && (
+                  <button
+                    className="flex items-center justify-between w-full px-2 py-1 text-xs font-medium text-gray-500 uppercase tracking-wider hover:text-gray-700"
+                    onClick={() => toggleGroup(group.name)}
+                  >
+                    {group.name}
+                    {expandedGroups[group.name] ? (
+                      <ChevronDown className="h-4 w-4" />
+                    ) : (
+                      <ChevronRight className="h-4 w-4" />
+                    )}
+                  </button>
+                )}
+                <div className={expandedGroups[group.name] ? '' : 'hidden'}>
+                  {group.items?.map((item) => (
+                    <Link key={item.name} href={item.href}>
+                      <a
+                        className={`${
+                          item.current
+                            ? 'bg-blue-50 text-blue-600'
+                            : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                        } group flex items-center justify-between px-2 py-2 text-sm font-medium rounded-md my-1`}
+                      >
+                        <div className="flex items-center">
+                          <span className={`${
+                            item.current ? 'text-blue-500' : 'text-gray-400 group-hover:text-gray-500'
+                          } mr-3`}>
+                            {item.icon}
+                          </span>
+                          {item.name}
+                        </div>
+                        {item.badge && (
+                          <span className={`${
+                            item.current
+                              ? 'bg-blue-100 text-blue-600'
+                              : 'bg-gray-100 text-gray-600 group-hover:bg-gray-200'
+                          } px-2 py-0.5 text-xs rounded-full`}>
+                            {item.badge}
+                          </span>
+                        )}
+                      </a>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </nav>
+        </div>
+        <div className="flex-shrink-0 flex border-t border-gray-200 p-4">
+          <div className="flex-shrink-0 w-full group block">
+            <div className="flex items-center">
+              <div className="text-sm font-medium text-gray-700">
+                TestPilot v1.0.0
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-    </aside>
+    </div>
   );
-}
+};
+
+export default Sidebar;

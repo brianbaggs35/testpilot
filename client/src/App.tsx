@@ -1,33 +1,29 @@
 import React from 'react';
 import { Route, Switch } from 'wouter';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { queryClient } from './lib/queryClient';
+
+// Pages
+import Dashboard from './pages/Dashboard';
+import NotFound from './pages/not-found';
+
+// Layout components
 import Navbar from './components/layout/Navbar';
 import Sidebar from './components/layout/Sidebar';
-import Dashboard from './pages/Dashboard';
-import TestCasesDemo from './pages/manual/TestCasesDemo';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-// Create a client
-const queryClient = new QueryClient();
-
+// Authenticated route wrapper
 function ProtectedRoute({ component: Component, ...rest }: any) {
-  // In a real implementation, this would check for authentication
-  // and redirect to a login page if not authenticated
-  return <Component {...rest} />;
-}
+  // In a real implementation, this would check for authentication state
+  // and redirect to login if the user is not authenticated
+  const isAuthenticated = true; // For demo purposes
 
-function NotFound() {
-  return (
-    <div className="flex items-center justify-center min-h-[calc(100vh-5rem)]">
-      <div className="text-center">
-        <h1 className="text-6xl font-bold text-gray-300">404</h1>
-        <p className="text-xl text-gray-600 mt-4">Page not found</p>
-        <p className="text-gray-500 mt-2">The page you're looking for doesn't exist or has been moved.</p>
-        <a href="/" className="mt-6 inline-block px-6 py-2 bg-primary text-white rounded-lg">
-          Go back home
-        </a>
-      </div>
-    </div>
-  );
+  if (!isAuthenticated) {
+    // Redirect to login
+    window.location.href = '/api/login';
+    return null;
+  }
+
+  return <Component {...rest} />;
 }
 
 function App() {
@@ -35,14 +31,35 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <div className="min-h-screen bg-gray-50">
         <Navbar />
-        <Sidebar />
-        <div className="p-4 sm:ml-64 pt-20">
-          <Switch>
-            <Route path="/" component={() => <ProtectedRoute component={Dashboard} />} />
-            {/* Demo component */}
-            <Route path="/demo" component={TestCasesDemo} />
-            <Route component={NotFound} />
-          </Switch>
+        <div className="flex">
+          <Sidebar />
+          <main className="flex-1 p-4">
+            <Switch>
+              <Route path="/" component={Dashboard} />
+              
+              {/* Test Management Routes */}
+              <Route path="/test-cases" component={() => <div>Test Cases Page</div>} />
+              <Route path="/test-suites" component={() => <div>Test Suites Page</div>} />
+              <Route path="/test-plans" component={() => <div>Test Plans Page</div>} />
+              
+              {/* Test Execution Routes */}
+              <Route path="/test-runs" component={() => <div>Test Runs Page</div>} />
+              <Route path="/manual-execution" component={() => <div>Manual Test Execution Page</div>} />
+              <Route path="/automated-results" component={() => <div>Automated Test Results Page</div>} />
+              
+              {/* Analysis Routes */}
+              <Route path="/failures" component={() => <div>Failure Tracking Page</div>} />
+              <Route path="/reports" component={() => <div>Reports Page</div>} />
+              <Route path="/metrics" component={() => <div>Metrics Page</div>} />
+              
+              {/* Settings Routes */}
+              <Route path="/settings" component={() => <div>Settings Page</div>} />
+              <Route path="/profile" component={() => <div>User Profile Page</div>} />
+              
+              {/* Not Found Route */}
+              <Route component={NotFound} />
+            </Switch>
+          </main>
         </div>
       </div>
     </QueryClientProvider>
