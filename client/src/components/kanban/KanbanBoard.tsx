@@ -1,115 +1,168 @@
 import React, { useState } from 'react';
-import StatusBadge from '../ui/StatusBadge';
-import { Clock, MoreHorizontal, User, ChevronDown } from 'lucide-react';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import { useQuery, useMutation } from '@tanstack/react-query';
+import { queryClient } from '../../lib/queryClient';
+import { Card } from '../ui/card';
+import { Button } from '../ui/button';
+import { Plus, Trash } from 'lucide-react';
+import { Spinner } from '../ui/spinner';
 
-// Define types for our kanban items
-interface KanbanItem {
-  id: number | string;
+type KanbanItem = {
+  id: number;
   title: string;
   description: string;
   status: string;
   priority: 'low' | 'medium' | 'high' | 'critical';
-  assignee?: string;
-  dueDate?: string;
-}
+  assignedTo?: string;
+  createdById?: string;
+  createdAt: Date;
+  updatedAt: Date;
+};
 
-interface Column {
+type KanbanColumn = {
   id: string;
   title: string;
   items: KanbanItem[];
-}
+};
 
-interface KanbanBoardProps {
-  initialColumns?: Column[];
-  onItemMove?: (itemId: number | string, fromColumn: string, toColumn: string) => void;
-}
+type KanbanBoardProps = {
+  resourceType: 'failures' | 'test-cases';
+  onItemClick?: (item: KanbanItem) => void;
+  onAddItem?: (columnId: string) => void;
+  customColumns?: KanbanColumn[];
+  isReadOnly?: boolean;
+};
 
-const KanbanBoard: React.FC<KanbanBoardProps> = ({ 
-  initialColumns = [
-    { 
-      id: 'new', 
-      title: 'New', 
-      items: [] 
-    },
-    { 
-      id: 'in-progress', 
-      title: 'In Progress', 
-      items: [] 
-    },
-    { 
-      id: 'blocked', 
-      title: 'Blocked', 
-      items: [] 
-    },
-    { 
-      id: 'resolved', 
-      title: 'Resolved', 
-      items: [] 
-    },
-  ],
-  onItemMove
+export const KanbanBoard: React.FC<KanbanBoardProps> = ({
+  resourceType,
+  onItemClick,
+  onAddItem,
+  customColumns,
+  isReadOnly = false,
 }) => {
-  const [columns, setColumns] = useState<Column[]>(initialColumns);
-  const [draggedItem, setDraggedItem] = useState<KanbanItem | null>(null);
-  const [sourceColumn, setSourceColumn] = useState<string>('');
+  const [columns, setColumns] = useState<KanbanColumn[]>(
+    customColumns || [
+      { id: 'new', title: 'New', items: [] },
+      { id: 'in-progress', title: 'In Progress', items: [] },
+      { id: 'blocked', title: 'Blocked', items: [] },
+      { id: 'resolved', title: 'Resolved', items: [] },
+    ]
+  );
 
-  const handleDragStart = (item: KanbanItem, columnId: string) => {
-    setDraggedItem(item);
-    setSourceColumn(columnId);
-  };
-
-  const handleDragOver = (e: React.DragEvent, columnId: string) => {
-    e.preventDefault();
-  };
-
-  const handleDrop = (e: React.DragEvent, columnId: string) => {
-    e.preventDefault();
-    
-    if (!draggedItem) return;
-    
-    // Don't do anything if dropping in the same column
-    if (sourceColumn === columnId) return;
-    
-    // Update columns state
-    const updatedColumns = columns.map(column => {
-      // Remove from source column
-      if (column.id === sourceColumn) {
-        return {
-          ...column,
-          items: column.items.filter(item => item.id !== draggedItem.id)
-        };
+  const { isLoading } = useQuery({
+    queryKey: [`/api/${resourceType}`],
+    onSuccess: (data: KanbanItem[]) => {
+      if (!customColumns) {
+        // Group items by status
+        const newColumns = [...columns];
+        
+        // Reset items
+        newColumns.forEach(column => {
+          column.items = [];
+        });
+        
+        // Distribute items to columns
+        data.forEach(item => {
+          const columnIndex = newColumns.findIndex(col => col.id === item.status);
+          if (columnIndex !== -1) {
+            newColumns[columnIndex].items.push(item);
+          } else {
+            // Add to first column if status doesn't match any column
+            newColumns[0].items.push(item);
+          }
+        });
+        
+        setColumns(newColumns);
       }
-      
-      // Add to target column
-      if (column.id === columnId) {
-        const updatedItem = { ...draggedItem, status: columnId };
-        return {
-          ...column,
-          items: [...column.items, updatedItem]
-        };
-      }
-      
-      return column;
-    });
+    },
+  });
+
+  const updateItemMutation = useMutation({
+    mutationFn: async ({ id, status }: { id: number; status: string }) => {
+      return fetch(`/api/${resourceType}/${id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status }),
+      }).then(res => {
+        if (!res.ok) throw new Error('Failed to update item');
+        return res.json();
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [`/api/${resourceType}`] });
+    },
+  });
+
+  const onDragEnd = (result: any) => {
+    if (isReadOnly) return;
     
-    setColumns(updatedColumns);
+    const { destination, source, draggableId } = result;
+
+    // If there's no destination or it's the same as source, do nothing
+    if (!destination || 
+        (destination.droppableId === source.droppableId && 
+         destination.index === source.index)) {
+      return;
+    }
+
+    // Find source and destination columns
+    const sourceColumn = columns.find(col => col.id === source.droppableId);
+    const destColumn = columns.find(col => col.id === destination.droppableId);
     
-    // Call the callback if provided
-    if (onItemMove) {
-      onItemMove(draggedItem.id, sourceColumn, columnId);
+    if (!sourceColumn || !destColumn) return;
+
+    // Copy the arrays to avoid mutation
+    const newColumns = [...columns];
+    const sourceItems = [...sourceColumn.items];
+    
+    // Remove the item from the source column
+    const [movedItem] = sourceItems.splice(source.index, 1);
+    
+    // Different destination
+    if (source.droppableId !== destination.droppableId) {
+      // Update the status of the moved item
+      movedItem.status = destination.droppableId;
+      
+      // Update in the database
+      updateItemMutation.mutate({
+        id: movedItem.id,
+        status: destination.droppableId,
+      });
+      
+      const destItems = [...destColumn.items];
+      destItems.splice(destination.index, 0, movedItem);
+      
+      // Update the columns state
+      newColumns.forEach(col => {
+        if (col.id === source.droppableId) {
+          col.items = sourceItems;
+        } else if (col.id === destination.droppableId) {
+          col.items = destItems;
+        }
+      });
+    } else {
+      // Same column, just reorder
+      sourceItems.splice(destination.index, 0, movedItem);
+      
+      // Update the column
+      newColumns.forEach(col => {
+        if (col.id === source.droppableId) {
+          col.items = sourceItems;
+        }
+      });
     }
     
-    setDraggedItem(null);
-    setSourceColumn('');
+    setColumns(newColumns);
   };
 
-  // Function to get color based on priority
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case 'low':
         return 'bg-blue-100 text-blue-800';
       case 'medium':
-        return 'bg-amber-100 text-amber-800';
+        return 'bg-yellow-100 text-yellow-800';
       case 'high':
         return 'bg-orange-100 text-orange-800';
       case 'critical':
@@ -119,72 +172,98 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Spinner className="h-8 w-8" />
+      </div>
+    );
+  }
+
   return (
-    <div className="kanban-board flex gap-4 overflow-x-auto pb-4">
-      {columns.map(column => (
-        <div 
-          key={column.id}
-          className="kanban-column min-w-[320px] bg-gray-50 rounded-md shadow-sm"
-          onDragOver={e => handleDragOver(e, column.id)}
-          onDrop={e => handleDrop(e, column.id)}
-        >
-          <div className="column-header p-3 bg-gray-100 border-b rounded-t-md">
-            <div className="flex justify-between items-center">
-              <h3 className="font-medium">{column.title}</h3>
-              <span className="text-xs text-gray-500 px-2 py-1 bg-white rounded-full">
-                {column.items.length}
-              </span>
+    <div className="w-full overflow-auto">
+      <DragDropContext onDragEnd={onDragEnd}>
+        <div className="flex gap-4 min-h-[400px]">
+          {columns.map(column => (
+            <div key={column.id} className="w-72 flex-shrink-0">
+              <div className="bg-gray-100 rounded-md p-3">
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="font-medium text-gray-700">
+                    {column.title} ({column.items.length})
+                  </h3>
+                  {!isReadOnly && onAddItem && (
+                    <Button 
+                      size="sm" 
+                      variant="ghost" 
+                      onClick={() => onAddItem(column.id)}
+                      className="h-8 w-8 p-0"
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
+                
+                <Droppable droppableId={column.id}>
+                  {(provided) => (
+                    <div
+                      ref={provided.innerRef}
+                      {...provided.droppableProps}
+                      className="min-h-[300px]"
+                    >
+                      {column.items.map((item, index) => (
+                        <Draggable
+                          key={item.id.toString()}
+                          draggableId={item.id.toString()}
+                          index={index}
+                          isDragDisabled={isReadOnly}
+                        >
+                          {(provided) => (
+                            <div
+                              ref={provided.innerRef}
+                              {...provided.draggableProps}
+                              {...provided.dragHandleProps}
+                              className="mb-2"
+                            >
+                              <Card 
+                                className="p-3 shadow-sm hover:shadow cursor-pointer"
+                                onClick={() => onItemClick?.(item)}
+                              >
+                                <div className="flex items-start justify-between">
+                                  <div>
+                                    <h4 className="font-medium text-sm mb-1 text-gray-900 truncate">
+                                      {item.title}
+                                    </h4>
+                                    <p className="text-xs text-gray-500 line-clamp-2 mb-2">
+                                      {item.description}
+                                    </p>
+                                  </div>
+                                </div>
+                                
+                                <div className="flex items-center justify-between">
+                                  <span className={`text-xs px-2 py-1 rounded-full ${getPriorityColor(item.priority)}`}>
+                                    {item.priority}
+                                  </span>
+                                  
+                                  {item.assignedTo && (
+                                    <div className="w-6 h-6 rounded-full bg-gray-300 flex items-center justify-center overflow-hidden">
+                                      {item.assignedTo.substring(0, 1).toUpperCase()}
+                                    </div>
+                                  )}
+                                </div>
+                              </Card>
+                            </div>
+                          )}
+                        </Draggable>
+                      ))}
+                      {provided.placeholder}
+                    </div>
+                  )}
+                </Droppable>
+              </div>
             </div>
-          </div>
-          
-          <div className="column-body p-2 space-y-2 max-h-[calc(100vh-200px)] overflow-y-auto">
-            {column.items.map(item => (
-              <div 
-                key={item.id}
-                className="kanban-item bg-white p-3 rounded-md shadow-sm border border-gray-200 cursor-move"
-                draggable
-                onDragStart={() => handleDragStart(item, column.id)}
-              >
-                <div className="flex justify-between items-start mb-2">
-                  <span className={`text-xs px-2 py-0.5 rounded-full ${getPriorityColor(item.priority)}`}>
-                    {item.priority.charAt(0).toUpperCase() + item.priority.slice(1)}
-                  </span>
-                  <button className="text-gray-400 hover:text-gray-600">
-                    <MoreHorizontal size={16} />
-                  </button>
-                </div>
-                
-                <h4 className="font-medium mb-1 text-sm">{item.title}</h4>
-                <p className="text-xs text-gray-600 mb-3 line-clamp-2">{item.description}</p>
-                
-                <div className="flex justify-between items-center text-xs text-gray-500">
-                  {item.assignee && (
-                    <div className="flex items-center">
-                      <User size={14} className="mr-1" />
-                      <span>{item.assignee}</span>
-                    </div>
-                  )}
-                  
-                  {item.dueDate && (
-                    <div className="flex items-center">
-                      <Clock size={14} className="mr-1" />
-                      <span>{item.dueDate}</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-            ))}
-            
-            {column.items.length === 0 && (
-              <div className="empty-column text-center py-6 text-gray-400 text-sm">
-                Drop items here
-              </div>
-            )}
-          </div>
+          ))}
         </div>
-      ))}
+      </DragDropContext>
     </div>
   );
 };
-
-export default KanbanBoard;
