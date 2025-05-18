@@ -27,20 +27,20 @@ export async function initializeDatabase() {
   try {
     // Drop tables if they exist to ensure clean initialization
     await client.query(`
-      DROP TABLE IF EXISTS test_suites_test_cases;
-      DROP TABLE IF EXISTS test_plans_test_cases;
-      DROP TABLE IF EXISTS failure_tracking;
-      DROP TABLE IF EXISTS test_results;
-      DROP TABLE IF EXISTS test_cases;
-      DROP TABLE IF EXISTS test_suites;
-      DROP TABLE IF EXISTS test_plans;
-      DROP TABLE IF EXISTS reports;
-      DROP TABLE IF EXISTS report_templates;
-      DROP TABLE IF EXISTS notifications;
-      DROP TABLE IF EXISTS comments;
-      DROP TABLE IF EXISTS sessions;
-      DROP TABLE IF EXISTS test_runs;
-      DROP TABLE IF EXISTS users;
+      DROP TABLE IF EXISTS test_suites_test_cases CASCADE;
+      DROP TABLE IF EXISTS test_plans_test_cases CASCADE;
+      DROP TABLE IF EXISTS failure_tracking CASCADE;
+      DROP TABLE IF EXISTS test_results CASCADE;
+      DROP TABLE IF EXISTS comments CASCADE;
+      DROP TABLE IF EXISTS test_cases CASCADE;
+      DROP TABLE IF EXISTS test_suites CASCADE;
+      DROP TABLE IF EXISTS test_plans CASCADE;
+      DROP TABLE IF EXISTS reports CASCADE;
+      DROP TABLE IF EXISTS report_templates CASCADE;
+      DROP TABLE IF EXISTS notifications CASCADE;
+      DROP TABLE IF EXISTS sessions CASCADE;
+      DROP TABLE IF EXISTS test_runs CASCADE;
+      DROP TABLE IF EXISTS users CASCADE;
     `);
 
     // Create users table
