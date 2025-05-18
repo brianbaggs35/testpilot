@@ -25,6 +25,24 @@ export async function testDatabaseConnection() {
 export async function initializeDatabase() {
   const client = await pool.connect();
   try {
+    // Drop tables if they exist to ensure clean initialization
+    await client.query(`
+      DROP TABLE IF EXISTS test_suites_test_cases;
+      DROP TABLE IF EXISTS test_plans_test_cases;
+      DROP TABLE IF EXISTS failure_tracking;
+      DROP TABLE IF EXISTS test_results;
+      DROP TABLE IF EXISTS test_cases;
+      DROP TABLE IF EXISTS test_suites;
+      DROP TABLE IF EXISTS test_plans;
+      DROP TABLE IF EXISTS reports;
+      DROP TABLE IF EXISTS report_templates;
+      DROP TABLE IF EXISTS notifications;
+      DROP TABLE IF EXISTS comments;
+      DROP TABLE IF EXISTS sessions;
+      DROP TABLE IF EXISTS test_runs;
+      DROP TABLE IF EXISTS users;
+    `);
+
     // Create users table
     await client.query(`
       CREATE TABLE IF NOT EXISTS "users" (
@@ -113,23 +131,33 @@ export async function initializeDatabase() {
       `);
       
       // Create some sample test cases
-      await client.query(`
-        INSERT INTO test_cases (title, description, type, status, priority, created_by_id)
-        VALUES 
-        ('Login functionality', 'Verify that users can login with valid credentials', 'manual', 'active', 'high', '1'),
-        ('User registration', 'Test the user registration process', 'manual', 'active', 'high', '1'),
-        ('Password reset', 'Verify password reset functionality works as expected', 'manual', 'active', 'medium', '1'),
-        ('Search functionality', 'Test the search feature with various inputs', 'manual', 'active', 'medium', '1'),
-        ('API Authentication', 'Verify API authentication works correctly', 'automated', 'active', 'high', '1')
-      `);
+      try {
+        await client.query(`
+          INSERT INTO test_cases (title, description, type, status, priority, created_by_id)
+          VALUES 
+          ('Login functionality', 'Verify that users can login with valid credentials', 'manual', 'active', 'high', '1'),
+          ('User registration', 'Test the user registration process', 'manual', 'active', 'high', '1'),
+          ('Password reset', 'Verify password reset functionality works as expected', 'manual', 'active', 'medium', '1'),
+          ('Search functionality', 'Test the search feature with various inputs', 'manual', 'active', 'medium', '1'),
+          ('API Authentication', 'Verify API authentication works correctly', 'automated', 'active', 'high', '1')
+        `);
+        console.log('Test cases created successfully');
+      } catch (error) {
+        console.error('Error creating test cases:', error);
+      }
       
       // Create a sample test run
-      await client.query(`
-        INSERT INTO test_runs (name, status, environment, total_tests, passed_tests, failed_tests, skipped_tests, started_at, created_by_id)
-        VALUES ('Nightly Build Test', 'completed', 'production', 120, 105, 10, 5, now() - interval '1 day', '1')
-      `);
+      try {
+        await client.query(`
+          INSERT INTO test_runs (name, status, environment, total_tests, passed_tests, failed_tests, skipped_tests, started_at, created_by_id)
+          VALUES ('Nightly Build Test', 'completed', 'production', 120, 105, 10, 5, now(), '1')
+        `);
+        console.log('Test run created successfully');
+      } catch (error) {
+        console.error('Error creating test run:', error);
+      }
       
-      console.log('Demo data created successfully');
+      console.log('Demo data creation completed');
     }
     
     console.log('Database initialized successfully');
