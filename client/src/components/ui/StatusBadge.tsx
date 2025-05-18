@@ -1,42 +1,179 @@
 import React from 'react';
+import { CheckCircle, XCircle, AlertCircle, Clock, Play, Pause } from 'lucide-react';
 
-type StatusType = 'passed' | 'failed' | 'blocked' | 'skipped' | 'pending' | 'in-progress' | 'not-run';
+export type StatusType = 
+  // Test statuses
+  | 'passed'
+  | 'failed'
+  | 'pending'
+  | 'running'
+  | 'blocked'
+  | 'skipped'
+  | 'untested'
+  | 'flaky'
+  // Test plan statuses
+  | 'draft'
+  | 'active'
+  | 'completed'
+  | 'archived'
+  // Failure tracking statuses
+  | 'new'
+  | 'in-progress'
+  | 'resolved'
+  | 'cannot-reproduce'
+  | 'wont-fix';
 
 interface StatusBadgeProps {
   status: StatusType;
   className?: string;
+  size?: 'sm' | 'md' | 'lg';
+  showIcon?: boolean;
+  showText?: boolean;
 }
 
-const getStatusStyles = (status: StatusType) => {
+export function StatusBadge({
+  status,
+  className = '',
+  size = 'md',
+  showIcon = true,
+  showText = true,
+}: StatusBadgeProps) {
+  let bgColor = '';
+  let textColor = '';
+  let icon = null;
+  let text = '';
+
+  // Set colors based on status
   switch (status) {
     case 'passed':
-      return 'bg-green-100 text-green-800 border-green-200';
+      bgColor = 'bg-green-100';
+      textColor = 'text-green-800';
+      icon = <CheckCircle className="h-4 w-4" />;
+      text = 'Passed';
+      break;
     case 'failed':
-      return 'bg-red-100 text-red-800 border-red-200';
-    case 'blocked':
-      return 'bg-gray-100 text-gray-800 border-gray-200';
-    case 'skipped':
-      return 'bg-blue-100 text-blue-800 border-blue-200';
+      bgColor = 'bg-red-100';
+      textColor = 'text-red-800';
+      icon = <XCircle className="h-4 w-4" />;
+      text = 'Failed';
+      break;
     case 'pending':
-      return 'bg-amber-100 text-amber-800 border-amber-200';
+      bgColor = 'bg-blue-100';
+      textColor = 'text-blue-800';
+      icon = <Clock className="h-4 w-4" />;
+      text = 'Pending';
+      break;
+    case 'running':
+      bgColor = 'bg-purple-100';
+      textColor = 'text-purple-800';
+      icon = <Play className="h-4 w-4" />;
+      text = 'Running';
+      break;
+    case 'blocked':
+      bgColor = 'bg-orange-100';
+      textColor = 'text-orange-800';
+      icon = <Pause className="h-4 w-4" />;
+      text = 'Blocked';
+      break;
+    case 'skipped':
+      bgColor = 'bg-gray-100';
+      textColor = 'text-gray-800';
+      icon = <AlertCircle className="h-4 w-4" />;
+      text = 'Skipped';
+      break;
+    case 'untested':
+      bgColor = 'bg-gray-100';
+      textColor = 'text-gray-600';
+      icon = <Clock className="h-4 w-4" />;
+      text = 'Untested';
+      break;
+    case 'flaky':
+      bgColor = 'bg-amber-100';
+      textColor = 'text-amber-800';
+      icon = <AlertCircle className="h-4 w-4" />;
+      text = 'Flaky';
+      break;
+    case 'draft':
+      bgColor = 'bg-indigo-100';
+      textColor = 'text-indigo-800';
+      icon = <AlertCircle className="h-4 w-4" />;
+      text = 'Draft';
+      break;
+    case 'active':
+      bgColor = 'bg-blue-100';
+      textColor = 'text-blue-800';
+      icon = <Play className="h-4 w-4" />;
+      text = 'Active';
+      break;
+    case 'completed':
+      bgColor = 'bg-green-100';
+      textColor = 'text-green-800';
+      icon = <CheckCircle className="h-4 w-4" />;
+      text = 'Completed';
+      break;
+    case 'archived':
+      bgColor = 'bg-gray-100';
+      textColor = 'text-gray-800';
+      icon = <AlertCircle className="h-4 w-4" />;
+      text = 'Archived';
+      break;
+    case 'new':
+      bgColor = 'bg-blue-100';
+      textColor = 'text-blue-800';
+      icon = <AlertCircle className="h-4 w-4" />;
+      text = 'New';
+      break;
     case 'in-progress':
-      return 'bg-purple-100 text-purple-800 border-purple-200';
-    case 'not-run':
-      return 'bg-slate-100 text-slate-800 border-slate-200';
+      bgColor = 'bg-purple-100';
+      textColor = 'text-purple-800';
+      icon = <Play className="h-4 w-4" />;
+      text = 'In Progress';
+      break;
+    case 'resolved':
+      bgColor = 'bg-green-100';
+      textColor = 'text-green-800';
+      icon = <CheckCircle className="h-4 w-4" />;
+      text = 'Resolved';
+      break;
+    case 'cannot-reproduce':
+      bgColor = 'bg-amber-100';
+      textColor = 'text-amber-800';
+      icon = <AlertCircle className="h-4 w-4" />;
+      text = 'Cannot Reproduce';
+      break;
+    case 'wont-fix':
+      bgColor = 'bg-gray-100';
+      textColor = 'text-gray-800';
+      icon = <XCircle className="h-4 w-4" />;
+      text = 'Won\'t Fix';
+      break;
     default:
-      return 'bg-gray-100 text-gray-800 border-gray-200';
+      bgColor = 'bg-gray-100';
+      textColor = 'text-gray-800';
+      icon = <AlertCircle className="h-4 w-4" />;
+      text = status.charAt(0).toUpperCase() + status.slice(1).replace(/-/g, ' ');
   }
-};
 
-export const StatusBadge: React.FC<StatusBadgeProps> = ({ status, className = '' }) => {
-  const baseStyles = 'px-2.5 py-0.5 rounded-full text-xs font-medium border';
-  const statusStyles = getStatusStyles(status);
-  
+  // Set size-based classes
+  let sizeClasses = '';
+  switch (size) {
+    case 'sm':
+      sizeClasses = 'text-xs px-2 py-0.5';
+      break;
+    case 'md':
+      sizeClasses = 'text-sm px-2.5 py-1';
+      break;
+    case 'lg':
+      sizeClasses = 'text-base px-3 py-1.5';
+      break;
+  }
+
   return (
-    <span className={`${baseStyles} ${statusStyles} ${className}`}>
-      {status.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+    <span
+      className={`inline-flex items-center font-medium rounded-full ${bgColor} ${textColor} ${sizeClasses} ${className}`}
+    >
+      {showIcon && <span className="mr-1.5">{icon}</span>}
+      {showText && text}
     </span>
   );
-};
-
-export default StatusBadge;
+}

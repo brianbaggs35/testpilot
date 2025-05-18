@@ -1,310 +1,253 @@
 import React from 'react';
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardHeader, 
-  CardTitle 
-} from '../components/ui/card';
+import { useQuery } from '@tanstack/react-query';
 import { Link } from 'wouter';
-import { 
-  CheckSquare, 
-  XSquare, 
-  Clock, 
-  AlertTriangle, 
-  Calendar, 
-  ChevronRight, 
-  BarChart3, 
-  Terminal,
-  FileText 
-} from 'lucide-react';
+import { BarChart, PieChart, Calendar, CheckCircle, XCircle, Circle, Clock, Users } from 'lucide-react';
+import { StatusBadge } from '../components/ui/StatusBadge';
 
-export default function Dashboard() {
-  // Sample data for the dashboard
-  const metrics = [
-    {
-      title: 'Total Tests',
-      value: '5,842',
-      icon: <CheckSquare className="h-5 w-5 text-blue-500" />,
-      color: 'bg-blue-50'
-    },
-    {
-      title: 'Failed Tests',
-      value: '124',
-      icon: <XSquare className="h-5 w-5 text-red-500" />,
-      color: 'bg-red-50'
-    },
-    {
-      title: 'Test Time',
-      value: '4h 32m',
-      icon: <Clock className="h-5 w-5 text-amber-500" />,
-      color: 'bg-amber-50'
-    },
-    {
-      title: 'Open Issues',
-      value: '38',
-      icon: <AlertTriangle className="h-5 w-5 text-purple-500" />,
-      color: 'bg-purple-50'
-    }
-  ];
+const DashboardCard = ({ title, value, icon, trend, trendValue, link }: {
+  title: string;
+  value: string | number;
+  icon: React.ReactNode;
+  trend?: 'up' | 'down' | 'neutral';
+  trendValue?: string;
+  link?: string;
+}) => {
+  return (
+    <div className="bg-white rounded-lg shadow-md p-5">
+      <div className="flex justify-between items-start">
+        <div>
+          <h3 className="text-gray-500 text-sm font-medium">{title}</h3>
+          <div className="mt-1 flex items-baseline">
+            <p className="text-2xl font-semibold text-gray-900">{value}</p>
+            {trend && trendValue && (
+              <p className={`ml-2 text-xs font-medium ${
+                trend === 'up' ? 'text-green-600' : 
+                trend === 'down' ? 'text-red-600' : 'text-gray-500'
+              }`}>
+                {trend === 'up' ? '↑' : trend === 'down' ? '↓' : '→'} {trendValue}
+              </p>
+            )}
+          </div>
+        </div>
+        <div className="p-2 bg-blue-50 rounded-md">
+          {icon}
+        </div>
+      </div>
+      {link && (
+        <div className="mt-4">
+          <Link to={link}>
+            <a className="text-sm text-blue-600 hover:text-blue-800">View all →</a>
+          </Link>
+        </div>
+      )}
+    </div>
+  );
+};
 
-  const recentRuns = [
-    {
-      id: 1,
-      name: 'Regression Test Suite',
-      timestamp: '2 hours ago',
-      status: 'Completed',
-      totalTests: 1245,
-      passedTests: 1203,
-      failedTests: 42
-    },
-    {
-      id: 2,
-      name: 'Integration Test Suite',
-      timestamp: '5 hours ago',
-      status: 'Completed',
-      totalTests: 842,
-      passedTests: 791,
-      failedTests: 51
-    },
-    {
-      id: 3,
-      name: 'API Test Suite',
-      timestamp: '1 day ago',
-      status: 'Completed',
-      totalTests: 356,
-      passedTests: 349,
-      failedTests: 7
-    }
-  ];
-
-  const manualTestPlans = [
-    {
-      id: 1,
-      name: 'Q2 Release Test Plan',
-      dueDate: 'Jun 15, 2023',
-      progress: 75,
-      status: 'In Progress'
-    },
-    {
-      id: 2,
-      name: 'Mobile App Test Plan',
-      dueDate: 'Jun 30, 2023',
-      progress: 45,
-      status: 'In Progress'
-    },
-    {
-      id: 3,
-      name: 'Security Audit Plan',
-      dueDate: 'Jul 15, 2023',
-      progress: 10,
-      status: 'Planning'
-    }
+const RecentActivity = () => {
+  // This would be fetched from the API in a real implementation
+  const activities = [
+    { id: 1, user: 'Alex Smith', action: 'created a test case', target: 'Login Validation TC-452', time: '45 minutes ago' },
+    { id: 2, user: 'Maria Garcia', action: 'executed a test run', target: 'Regression Suite TR-127', time: '2 hours ago' },
+    { id: 3, user: 'John Lee', action: 'updated a test result', target: 'Payment Processing TC-301', time: '3 hours ago' },
+    { id: 4, user: 'Sarah Wilson', action: 'added a comment', target: 'User Profile TC-212', time: '5 hours ago' },
+    { id: 5, user: 'James Brown', action: 'created a test plan', target: 'Q2 Release TP-056', time: '1 day ago' },
   ];
 
   return (
-    <div className="dashboard">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Dashboard</h1>
-        <div className="text-sm text-gray-500">
-          Last updated: {new Date().toLocaleString()}
-        </div>
-      </div>
-
-      {/* Key Metrics */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        {metrics.map((metric, index) => (
-          <Card key={index}>
-            <CardContent className={`flex items-center p-6 ${metric.color}`}>
-              <div className="mr-4">
-                {metric.icon}
-              </div>
-              <div>
-                <p className="text-sm font-medium text-gray-500">{metric.title}</p>
-                <h3 className="text-2xl font-bold">{metric.value}</h3>
-              </div>
-            </CardContent>
-          </Card>
+    <div className="bg-white rounded-lg shadow-md p-5">
+      <h3 className="text-lg font-medium mb-4">Recent Activity</h3>
+      <div className="space-y-4">
+        {activities.map((activity) => (
+          <div key={activity.id} className="flex items-start space-x-3 border-b border-gray-100 pb-3">
+            <div className="w-2 h-2 mt-2 rounded-full bg-blue-500 flex-shrink-0"></div>
+            <div>
+              <p className="text-sm">
+                <span className="font-medium">{activity.user}</span> {activity.action} <Link to="#"><a className="text-blue-600 hover:underline">{activity.target}</a></Link>
+              </p>
+              <p className="text-xs text-gray-500 mt-1">{activity.time}</p>
+            </div>
+          </div>
         ))}
       </div>
+    </div>
+  );
+};
 
-      {/* Main Dashboard Content */}
-      <div className="grid grid-cols-1 lg:grid-cols-7 gap-6">
-        {/* Left Column (4/7) */}
-        <div className="lg:col-span-4 space-y-6">
-          {/* Recent Test Runs */}
-          <Card>
-            <CardHeader className="pb-2">
-              <div className="flex justify-between items-center">
-                <CardTitle className="text-lg">Recent Test Runs</CardTitle>
-                <Link href="/automated/test-cases">
-                  <a className="text-sm text-primary hover:underline flex items-center">
-                    View All <ChevronRight className="h-4 w-4 ml-1" />
-                  </a>
-                </Link>
-              </div>
-              <CardDescription>Latest automated test execution results</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {recentRuns.map((run) => (
-                  <div key={run.id} className="border rounded-lg p-4">
-                    <div className="flex justify-between items-start mb-2">
-                      <div>
-                        <h4 className="font-medium">{run.name}</h4>
-                        <div className="text-sm text-gray-500">{run.timestamp}</div>
-                      </div>
-                      <div className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        run.failedTests === 0 ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-800'
-                      }`}>
-                        {run.failedTests === 0 ? 'All Passed' : `${run.failedTests} Failed`}
-                      </div>
-                    </div>
-                    
-                    <div className="w-full bg-gray-200 rounded-full h-2.5">
-                      <div 
-                        className={`h-2.5 rounded-full ${
-                          run.passedTests === run.totalTests ? 'bg-green-500' : 'bg-amber-500'
-                        }`}
-                        style={{ width: `${(run.passedTests / run.totalTests) * 100}%` }}
-                      ></div>
-                    </div>
-                    
-                    <div className="mt-2 flex justify-between text-xs text-gray-500">
-                      <div>{run.passedTests} Passed</div>
-                      <div>{run.totalTests} Total</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-          
-          {/* Demo Features */}
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg">Demo Features</CardTitle>
-              <CardDescription>Explore the features we've implemented</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Link href="/demo">
-                <a className="block border rounded-lg p-4 hover:bg-gray-50 transition-colors">
-                  <div className="flex items-center">
-                    <div className="bg-violet-100 rounded-lg p-3 mr-4">
-                      <Terminal className="h-6 w-6 text-violet-600" />
-                    </div>
-                    <div>
-                      <h4 className="font-medium">Test Case Management Demo</h4>
-                      <p className="text-sm text-gray-500">
-                        Try out our Rich Text Editor, Kanban Board, and PDF reporting features
-                      </p>
-                    </div>
-                    <ChevronRight className="h-5 w-5 ml-auto text-gray-400" />
-                  </div>
-                </a>
-              </Link>
-            </CardContent>
-          </Card>
+const TestStatusSummary = () => {
+  // This would be fetched from the API in a real implementation
+  const statuses = [
+    { status: 'passed', count: 352 },
+    { status: 'failed', count: 47 },
+    { status: 'pending', count: 128 },
+    { status: 'blocked', count: 23 },
+    { status: 'skipped', count: 16 }
+  ];
+
+  return (
+    <div className="bg-white rounded-lg shadow-md p-5">
+      <h3 className="text-lg font-medium mb-4">Test Status Summary</h3>
+      <div className="space-y-3">
+        {statuses.map((item) => (
+          <div key={item.status} className="flex items-center justify-between">
+            <div className="flex items-center">
+              <StatusBadge status={item.status as any} size="sm" />
+              <span className="ml-2 text-sm capitalize">{item.status}</span>
+            </div>
+            <span className="font-medium">{item.count}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export default function Dashboard() {
+  // These would be fetched from the API in a real implementation
+  const { data: testMetrics, isLoading: metricsLoading } = useQuery({
+    queryKey: ['/api/metrics/tests'],
+    // Mock data for demonstration
+    initialData: {
+      totalTests: 1248,
+      passRate: 84.5,
+      automatedTests: 742,
+      testCasesLastWeek: 56
+    }
+  });
+
+  const { data: failureMetrics, isLoading: failuresLoading } = useQuery({
+    queryKey: ['/api/metrics/failures'],
+    // Mock data for demonstration
+    initialData: {
+      unresolvedFailures: 47,
+      criticalFailures: 12,
+      avgResolutionTime: '1.8 days',
+      failureRate: '3.7%'
+    }
+  });
+
+  const { data: userMetrics, isLoading: usersLoading } = useQuery({
+    queryKey: ['/api/metrics/users'],
+    // Mock data for demonstration
+    initialData: {
+      activeUsers: 34,
+      testersOnline: 8,
+      topTester: 'Maria Garcia',
+      totalExecutions: 2567
+    }
+  });
+
+  return (
+    <div className="p-6 max-w-7xl mx-auto">
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
+        <div className="flex space-x-3">
+          <select className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
+            <option>Last 7 days</option>
+            <option>Last 30 days</option>
+            <option>Last 90 days</option>
+            <option>Last year</option>
+          </select>
+          <button className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700">
+            <Calendar className="h-4 w-4 mr-2" />
+            Custom Date Range
+          </button>
         </div>
-        
-        {/* Right Column (3/7) */}
-        <div className="lg:col-span-3 space-y-6">
-          {/* Manual Test Plans */}
-          <Card>
-            <CardHeader className="pb-2">
+      </div>
+      
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <DashboardCard 
+          title="Total Test Cases" 
+          value={testMetrics?.totalTests || 0}
+          icon={<BarChart className="h-6 w-6 text-blue-600" />}
+          trend="up"
+          trendValue="4.2% from last week"
+          link="/test-cases"
+        />
+        <DashboardCard 
+          title="Pass Rate" 
+          value={`${testMetrics?.passRate || 0}%`}
+          icon={<PieChart className="h-6 w-6 text-green-600" />}
+          trend="up"
+          trendValue="1.8% from last week"
+          link="/test-runs"
+        />
+        <DashboardCard 
+          title="Unresolved Failures" 
+          value={failureMetrics?.unresolvedFailures || 0}
+          icon={<XCircle className="h-6 w-6 text-red-600" />}
+          trend="down"
+          trendValue="2.5% from last week"
+          link="/failures"
+        />
+        <DashboardCard 
+          title="Active Users" 
+          value={userMetrics?.activeUsers || 0}
+          icon={<Users className="h-6 w-6 text-purple-600" />}
+          link="/users"
+        />
+      </div>
+      
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        <div className="lg:col-span-2">
+          <div className="bg-white rounded-lg shadow-md p-5">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-medium">Test Execution Trend</h3>
+              <select className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
+                <option>Weekly</option>
+                <option>Monthly</option>
+                <option>Quarterly</option>
+              </select>
+            </div>
+            <div className="h-80 flex items-center justify-center bg-gray-50 rounded">
+              {/* Placeholder for chart */}
+              <p className="text-gray-500">Chart showing test execution trends over time would appear here</p>
+            </div>
+          </div>
+        </div>
+        <div>
+          <TestStatusSummary />
+        </div>
+      </div>
+      
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2">
+          <RecentActivity />
+        </div>
+        <div>
+          <div className="bg-white rounded-lg shadow-md p-5">
+            <h3 className="text-lg font-medium mb-4">Critical Metrics</h3>
+            <div className="space-y-3">
               <div className="flex justify-between items-center">
-                <CardTitle className="text-lg">Manual Test Plans</CardTitle>
-                <Link href="/manual/test-plans">
-                  <a className="text-sm text-primary hover:underline flex items-center">
-                    View All <ChevronRight className="h-4 w-4 ml-1" />
-                  </a>
-                </Link>
+                <span className="text-sm text-gray-500">Critical Failures</span>
+                <span className="font-medium text-red-600">{failureMetrics?.criticalFailures}</span>
               </div>
-              <CardDescription>Active manual testing activities</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {manualTestPlans.map((plan) => (
-                  <div key={plan.id} className="border rounded-lg p-4">
-                    <div className="flex justify-between items-start mb-2">
-                      <h4 className="font-medium">{plan.name}</h4>
-                      <div className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        plan.status === 'Completed' ? 'bg-green-100 text-green-800' : 
-                        plan.status === 'In Progress' ? 'bg-blue-100 text-blue-800' :
-                        'bg-gray-100 text-gray-800'
-                      }`}>
-                        {plan.status}
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center gap-2 text-sm text-gray-500 mb-2">
-                      <Calendar className="h-4 w-4" />
-                      <span>Due: {plan.dueDate}</span>
-                    </div>
-                    
-                    <div className="w-full bg-gray-200 rounded-full h-2.5">
-                      <div 
-                        className="h-2.5 rounded-full bg-blue-500"
-                        style={{ width: `${plan.progress}%` }}
-                      ></div>
-                    </div>
-                    
-                    <div className="mt-2 text-xs text-gray-500 text-right">
-                      {plan.progress}% complete
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-          
-          {/* Recent Reports */}
-          <Card>
-            <CardHeader className="pb-2">
               <div className="flex justify-between items-center">
-                <CardTitle className="text-lg">Recent Reports</CardTitle>
-                <Link href="/manual/reports">
-                  <a className="text-sm text-primary hover:underline flex items-center">
-                    View All <ChevronRight className="h-4 w-4 ml-1" />
-                  </a>
-                </Link>
+                <span className="text-sm text-gray-500">Avg. Resolution Time</span>
+                <span className="font-medium">{failureMetrics?.avgResolutionTime}</span>
               </div>
-              <CardDescription>Generated test reports</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                <div className="border rounded-lg p-3 flex items-center">
-                  <div className="bg-blue-100 p-2 rounded-lg mr-3">
-                    <FileText className="h-5 w-5 text-blue-600" />
-                  </div>
-                  <div>
-                    <h4 className="font-medium text-sm">Regression Test Report</h4>
-                    <p className="text-xs text-gray-500">Generated 2 days ago</p>
-                  </div>
-                </div>
-                
-                <div className="border rounded-lg p-3 flex items-center">
-                  <div className="bg-green-100 p-2 rounded-lg mr-3">
-                    <FileText className="h-5 w-5 text-green-600" />
-                  </div>
-                  <div>
-                    <h4 className="font-medium text-sm">Performance Test Report</h4>
-                    <p className="text-xs text-gray-500">Generated 5 days ago</p>
-                  </div>
-                </div>
-                
-                <div className="border rounded-lg p-3 flex items-center">
-                  <div className="bg-purple-100 p-2 rounded-lg mr-3">
-                    <BarChart3 className="h-5 w-5 text-purple-600" />
-                  </div>
-                  <div>
-                    <h4 className="font-medium text-sm">Monthly Test Metrics</h4>
-                    <p className="text-xs text-gray-500">Generated 1 week ago</p>
-                  </div>
-                </div>
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-500">Test Failure Rate</span>
+                <span className="font-medium">{failureMetrics?.failureRate}</span>
               </div>
-            </CardContent>
-          </Card>
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-500">Automated Test %</span>
+                <span className="font-medium">{Math.round((testMetrics?.automatedTests || 0) / (testMetrics?.totalTests || 1) * 100)}%</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-500">New Test Cases (Week)</span>
+                <span className="font-medium">{testMetrics?.testCasesLastWeek}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-500">Top Tester</span>
+                <span className="font-medium">{userMetrics?.topTester}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-500">Total Executions</span>
+                <span className="font-medium">{userMetrics?.totalExecutions}</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
