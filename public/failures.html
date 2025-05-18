@@ -4,7 +4,302 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Failure Tracking - TestPilot QA Platform</title>
+  <meta name="description" content="Kanban-style board for tracking and managing test failures with customizable columns">
+  
+  <!-- Open Graph tags for better social sharing -->
+  <meta property="og:title" content="TestPilot QA Platform - Failure Tracking">
+  <meta property="og:description" content="Professional QA platform with kanban boards for failure management">
+  <meta property="og:type" content="website">
+  
   <link href="styles.css" rel="stylesheet">
+  <style>
+    .kanban-board {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1rem;
+      margin-top: 1.5rem;
+      overflow-x: auto;
+    }
+    
+    .kanban-column {
+      min-width: 280px;
+      background-color: #f3f4f6;
+      border-radius: 0.5rem;
+      overflow: hidden;
+    }
+    
+    .kanban-column-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem;
+      font-weight: 600;
+      font-size: 0.875rem;
+      color: #374151;
+      background-color: #e5e7eb;
+    }
+    
+    .kanban-column-header.new-column {
+      background-color: #eff6ff;
+      color: #3b82f6;
+    }
+    
+    .kanban-column-header.in-progress-column {
+      background-color: #fff7ed;
+      color: #f97316;
+    }
+    
+    .kanban-column-header.fixed-column {
+      background-color: #dcfce7;
+      color: #15803d;
+    }
+    
+    .kanban-column-header.wont-fix-column {
+      background-color: #f3f4f6;
+      color: #6b7280;
+    }
+    
+    .kanban-column-count {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background-color: #f9fafb;
+      font-size: 0.75rem;
+      color: inherit;
+    }
+    
+    .kanban-items {
+      padding: 0.5rem;
+      min-height: 600px;
+      max-height: 600px;
+      overflow-y: auto;
+    }
+    
+    .kanban-item {
+      background-color: white;
+      border-radius: 0.375rem;
+      padding: 1rem;
+      margin-bottom: 0.75rem;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+      cursor: pointer;
+      transition: box-shadow 0.2s;
+    }
+    
+    .kanban-item:hover {
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    .kanban-item-title {
+      font-weight: 500;
+      font-size: 0.875rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .kanban-item-description {
+      font-size: 0.75rem;
+      color: #6b7280;
+      margin-bottom: 0.75rem;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    
+    .kanban-item-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      color: #6b7280;
+    }
+    
+    .kanban-item-meta {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    
+    .kanban-item-priority-high {
+      padding: 0.125rem 0.5rem;
+      background-color: #fee2e2;
+      color: #b91c1c;
+      border-radius: 0.25rem;
+      font-weight: 500;
+    }
+    
+    .kanban-item-priority-medium {
+      padding: 0.125rem 0.5rem;
+      background-color: #fff7ed;
+      color: #c2410c;
+      border-radius: 0.25rem;
+      font-weight: 500;
+    }
+    
+    .kanban-item-priority-low {
+      padding: 0.125rem 0.5rem;
+      background-color: #ecfdf5;
+      color: #047857;
+      border-radius: 0.25rem;
+      font-weight: 500;
+    }
+    
+    .kanban-item-assignee {
+      display: flex;
+      align-items: center;
+    }
+    
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s, visibility 0.3s;
+    }
+    
+    .modal.show {
+      opacity: 1;
+      visibility: visible;
+    }
+    
+    .modal-dialog {
+      width: 100%;
+      max-width: 600px;
+      background-color: white;
+      border-radius: 0.5rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      transform: translateY(-20px);
+      transition: transform 0.3s;
+    }
+    
+    .modal.show .modal-dialog {
+      transform: translateY(0);
+    }
+    
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    
+    .modal-title {
+      font-weight: 600;
+      font-size: 1.125rem;
+    }
+    
+    .modal-close {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #6b7280;
+    }
+    
+    .modal-body {
+      padding: 1.5rem;
+      max-height: 70vh;
+      overflow-y: auto;
+    }
+    
+    .modal-footer {
+      padding: 1rem 1.5rem;
+      border-top: 1px solid #e5e7eb;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 0.75rem;
+    }
+    
+    .button-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: #4b5563;
+      background-color: white;
+      border: 1px solid #d1d5db;
+      border-radius: 0.375rem;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    
+    .button-secondary:hover {
+      background-color: #f9fafb;
+    }
+    
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+    
+    .form-label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+    
+    .form-input {
+      width: 100%;
+      padding: 0.5rem 0.75rem;
+      border: 1px solid #d1d5db;
+      border-radius: 0.375rem;
+    }
+    
+    .form-textarea {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #d1d5db;
+      border-radius: 0.375rem;
+      resize: vertical;
+      min-height: 100px;
+    }
+    
+    .form-input-group {
+      display: flex;
+      gap: 1rem;
+    }
+    
+    .form-input-group .form-group {
+      flex: 1;
+    }
+    
+    .toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+    }
+    
+    .toolbar-left, .toolbar-right {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    
+    .filter-group {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .filter-label {
+      font-size: 0.875rem;
+      color: #4b5563;
+    }
+  </style>
 </head>
 <body>
   <div class="layout">
@@ -28,7 +323,7 @@
     <div class="sidebar">
       <div class="sidebar-section">
         <h3 class="sidebar-title">Dashboards</h3>
-        <a href="/" class="nav-item">
+        <a href="index.html" class="nav-item">
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
             <line x1="3" y1="9" x2="21" y2="9"></line>
@@ -36,7 +331,7 @@
           </svg>
           Automated Tests
         </a>
-        <a href="/dashboard-manual.html" class="nav-item">
+        <a href="dashboard-manual.html" class="nav-item">
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
             <polyline points="14 2 14 8 20 8"></polyline>
@@ -50,7 +345,7 @@
       
       <div class="sidebar-section">
         <h3 class="sidebar-title">Test Management</h3>
-        <a href="/test-cases.html" class="nav-item">
+        <a href="test-cases.html" class="nav-item">
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
             <polyline points="14 2 14 8 20 8"></polyline>
@@ -59,13 +354,13 @@
           </svg>
           Test Cases
         </a>
-        <a href="/test-suites.html" class="nav-item">
+        <a href="test-suites.html" class="nav-item">
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
           </svg>
           Test Suites
         </a>
-        <a href="/test-plans.html" class="nav-item">
+        <a href="test-plans.html" class="nav-item">
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
             <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
@@ -77,20 +372,20 @@
       
       <div class="sidebar-section">
         <h3 class="sidebar-title">Test Execution</h3>
-        <a href="/test-runs.html" class="nav-item">
+        <a href="test-runs.html" class="nav-item">
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
           </svg>
           Test Runs
         </a>
-        <a href="/manual-execution.html" class="nav-item">
+        <a href="manual-execution.html" class="nav-item">
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path>
             <line x1="4" y1="22" x2="4" y2="15"></line>
           </svg>
           Manual Execution
         </a>
-        <a href="/automated-results.html" class="nav-item">
+        <a href="automated-results.html" class="nav-item">
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
           </svg>
@@ -100,7 +395,7 @@
       
       <div class="sidebar-section">
         <h3 class="sidebar-title">Analysis</h3>
-        <a href="/failures.html" class="nav-item active">
+        <a href="failures.html" class="nav-item active">
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
             <line x1="12" y1="9" x2="12" y2="13"></line>
@@ -108,14 +403,14 @@
           </svg>
           Failure Tracking
         </a>
-        <a href="/reports.html" class="nav-item">
+        <a href="reports.html" class="nav-item">
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
             <polyline points="13 2 13 9 20 9"></polyline>
           </svg>
           Reports
         </a>
-        <a href="/metrics.html" class="nav-item">
+        <a href="metrics.html" class="nav-item">
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <line x1="18" y1="20" x2="18" y2="10"></line>
             <line x1="12" y1="20" x2="12" y2="4"></line>
@@ -129,128 +424,218 @@
     <main>
       <div class="page-header">
         <h1 class="page-title">Failure Tracking</h1>
-        <button class="button">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="12" y1="5" x2="12" y2="19"></line>
-            <line x1="5" y1="12" x2="19" y2="12"></line>
-          </svg>
-          Add Item
-        </button>
+        <div class="actions">
+          <button class="button" id="newFailureButton">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            New Failure
+          </button>
+        </div>
+      </div>
+      
+      <div class="toolbar">
+        <div class="toolbar-left">
+          <div class="filter-group">
+            <span class="filter-label">Priority:</span>
+            <select class="select small">
+              <option>All</option>
+              <option>High</option>
+              <option>Medium</option>
+              <option>Low</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <span class="filter-label">Assignee:</span>
+            <select class="select small">
+              <option>All</option>
+              <option>Jane Smith</option>
+              <option>Tom Johnson</option>
+              <option>Admin</option>
+              <option>Unassigned</option>
+            </select>
+          </div>
+        </div>
+        <div class="toolbar-right">
+          <div class="filter-group">
+            <input type="text" class="form-input" placeholder="Search failures..." style="width: 200px;">
+          </div>
+        </div>
       </div>
       
       <div class="kanban-board">
         <div class="kanban-column">
-          <div class="kanban-column-header">
+          <div class="kanban-column-header new-column">
             <div>New</div>
+            <div class="kanban-column-count">4</div>
+          </div>
+          <div class="kanban-items">
+            <div class="kanban-item" data-id="1">
+              <div class="kanban-item-title">[API] Authentication token not refreshing automatically</div>
+              <div class="kanban-item-description">
+                Test case fails when the authentication token expires during long test runs. The token refresh mechanism doesn't work as expected.
+              </div>
+              <div class="kanban-item-footer">
+                <div class="kanban-item-priority-high">High</div>
+                <div class="kanban-item-meta">
+                  <div class="kanban-item-assignee">
+                    <div class="avatar small">TJ</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="kanban-item" data-id="2">
+              <div class="kanban-item-title">[UI] Payment form validation error on Safari</div>
+              <div class="kanban-item-description">
+                Credit card validation fails on Safari browsers with the error: "Invalid credit card number" even when the input is correct.
+              </div>
+              <div class="kanban-item-footer">
+                <div class="kanban-item-priority-high">High</div>
+                <div class="kanban-item-meta">
+                  <div class="kanban-item-assignee">
+                    <div class="avatar small">JS</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="kanban-item" data-id="3">
+              <div class="kanban-item-title">[Mobile] Profile photo upload fails on Android</div>
+              <div class="kanban-item-description">
+                When uploading a profile photo on Android devices, the upload appears to complete but the photo is not saved to the user profile.
+              </div>
+              <div class="kanban-item-footer">
+                <div class="kanban-item-priority-medium">Medium</div>
+                <div class="kanban-item-meta">
+                  <div class="kanban-item-assignee">
+                    <div class="avatar small">TJ</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="kanban-item" data-id="4">
+              <div class="kanban-item-title">[Data] Search results pagination shows duplicate items</div>
+              <div class="kanban-item-description">
+                When navigating between pages in search results, some items appear on multiple pages, leading to duplicate entries.
+              </div>
+              <div class="kanban-item-footer">
+                <div class="kanban-item-priority-medium">Medium</div>
+                <div class="kanban-item-meta">
+                  <div class="kanban-item-assignee">
+                    <div class="avatar small">A</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="kanban-column">
+          <div class="kanban-column-header in-progress-column">
+            <div>In Progress</div>
             <div class="kanban-column-count">3</div>
           </div>
           <div class="kanban-items">
-            <div class="kanban-item">
-              <div class="kanban-item-title">Login API returns 500 error</div>
-              <div class="kanban-item-description">Authentication API endpoint returns server error when attempting to log in with valid credentials.</div>
+            <div class="kanban-item" data-id="5">
+              <div class="kanban-item-title">[Performance] Report generation takes too long</div>
+              <div class="kanban-item-description">
+                Generating PDF reports with more than 100 test cases takes over 2 minutes, which is significantly longer than the 30 second requirement.
+              </div>
               <div class="kanban-item-footer">
-                <div class="kanban-item-priority-high">High Priority</div>
-                <div>Due: May 20, 2025</div>
+                <div class="kanban-item-priority-high">High</div>
+                <div class="kanban-item-meta">
+                  <div class="kanban-item-assignee">
+                    <div class="avatar small">JS</div>
+                  </div>
+                </div>
               </div>
             </div>
-            <div class="kanban-item">
-              <div class="kanban-item-title">User profile image not loading</div>
-              <div class="kanban-item-description">Profile images are not displayed in the dashboard after user uploads a new image.</div>
+            <div class="kanban-item" data-id="6">
+              <div class="kanban-item-title">[API] Rate limiting not working properly</div>
+              <div class="kanban-item-description">
+                API rate limiting is inconsistent, sometimes allowing more requests than configured and other times blocking legitimate traffic.
+              </div>
               <div class="kanban-item-footer">
-                <div class="kanban-item-priority-medium">Medium Priority</div>
-                <div>Due: May 22, 2025</div>
+                <div class="kanban-item-priority-medium">Medium</div>
+                <div class="kanban-item-meta">
+                  <div class="kanban-item-assignee">
+                    <div class="avatar small">TJ</div>
+                  </div>
+                </div>
               </div>
             </div>
-            <div class="kanban-item">
-              <div class="kanban-item-title">Search functionality returning incorrect results</div>
-              <div class="kanban-item-description">Search results do not match the search criteria in some cases.</div>
-              <div class="kanban-item-footer">
-                <div class="kanban-item-priority-medium">Medium Priority</div>
-                <div>Due: May 24, 2025</div>
+            <div class="kanban-item" data-id="7">
+              <div class="kanban-item-title">[UI] Responsive design breaks on tablet devices</div>
+              <div class="kanban-item-description">
+                The layout of the dashboard doesn't render correctly on iPad and other tablet devices with screen widths between 768px and 1024px.
               </div>
-            </div>
-          </div>
-        </div>
-        
-        <div class="kanban-column">
-          <div class="kanban-column-header">
-            <div>In Progress</div>
-            <div class="kanban-column-count">2</div>
-          </div>
-          <div class="kanban-items">
-            <div class="kanban-item">
-              <div class="kanban-item-title">Payment processing timeout</div>
-              <div class="kanban-item-description">Payment API calls are timing out sporadically during high traffic periods.</div>
               <div class="kanban-item-footer">
-                <div class="kanban-item-priority-high">High Priority</div>
-                <div>Due: May 19, 2025</div>
-              </div>
-            </div>
-            <div class="kanban-item">
-              <div class="kanban-item-title">Mobile navigation menu not working</div>
-              <div class="kanban-item-description">The hamburger menu on mobile devices doesn't respond to tap events.</div>
-              <div class="kanban-item-footer">
-                <div class="kanban-item-priority-medium">Medium Priority</div>
-                <div>Due: May 21, 2025</div>
+                <div class="kanban-item-priority-low">Low</div>
+                <div class="kanban-item-meta">
+                  <div class="kanban-item-assignee">
+                    <div class="avatar small">JS</div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
         
         <div class="kanban-column">
-          <div class="kanban-column-header">
-            <div>Under Review</div>
-            <div class="kanban-column-count">1</div>
-          </div>
-          <div class="kanban-items">
-            <div class="kanban-item">
-              <div class="kanban-item-title">Order confirmation email delayed</div>
-              <div class="kanban-item-description">Order confirmation emails are being delayed by up to 30 minutes after order completion.</div>
-              <div class="kanban-item-footer">
-                <div class="kanban-item-priority-medium">Medium Priority</div>
-                <div>Due: May 20, 2025</div>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <div class="kanban-column">
-          <div class="kanban-column-header">
+          <div class="kanban-column-header fixed-column">
             <div>Fixed</div>
             <div class="kanban-column-count">2</div>
           </div>
           <div class="kanban-items">
-            <div class="kanban-item">
-              <div class="kanban-item-title">Product image gallery not loading</div>
-              <div class="kanban-item-description">Product detail page image gallery fails to load images on Firefox browser.</div>
+            <div class="kanban-item" data-id="8">
+              <div class="kanban-item-title">[Security] Password reset token expiration not enforced</div>
+              <div class="kanban-item-description">
+                Password reset tokens were not expiring after the configured 24-hour period, creating a potential security vulnerability.
+              </div>
               <div class="kanban-item-footer">
-                <div class="kanban-item-priority-high">High Priority</div>
-                <div>Resolved: May 17, 2025</div>
+                <div class="kanban-item-priority-high">High</div>
+                <div class="kanban-item-meta">
+                  <div class="kanban-item-assignee">
+                    <div class="avatar small">TJ</div>
+                  </div>
+                </div>
               </div>
             </div>
-            <div class="kanban-item">
-              <div class="kanban-item-title">Checkout form validation error</div>
-              <div class="kanban-item-description">Form submission fails with valid credit card information.</div>
+            <div class="kanban-item" data-id="9">
+              <div class="kanban-item-title">[UI] Date picker calendar doesn't show on Firefox</div>
+              <div class="kanban-item-description">
+                The date picker calendar popup was not displaying on Firefox browsers due to a CSS z-index issue.
+              </div>
               <div class="kanban-item-footer">
-                <div class="kanban-item-priority-high">High Priority</div>
-                <div>Resolved: May 16, 2025</div>
+                <div class="kanban-item-priority-medium">Medium</div>
+                <div class="kanban-item-meta">
+                  <div class="kanban-item-assignee">
+                    <div class="avatar small">JS</div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
         
         <div class="kanban-column">
-          <div class="kanban-column-header">
-            <div>Closed</div>
+          <div class="kanban-column-header wont-fix-column">
+            <div>Won't Fix</div>
             <div class="kanban-column-count">1</div>
           </div>
           <div class="kanban-items">
-            <div class="kanban-item">
-              <div class="kanban-item-title">Registration form not submitting</div>
-              <div class="kanban-item-description">Users unable to complete registration due to form submission error.</div>
+            <div class="kanban-item" data-id="10">
+              <div class="kanban-item-title">[Feature] Support for Internet Explorer 11</div>
+              <div class="kanban-item-description">
+                Tests failing on Internet Explorer 11. Decision made to drop support for IE11 as it's no longer maintained by Microsoft.
+              </div>
               <div class="kanban-item-footer">
-                <div class="kanban-item-priority-high">High Priority</div>
-                <div>Closed: May 15, 2025</div>
+                <div class="kanban-item-priority-low">Low</div>
+                <div class="kanban-item-meta">
+                  <div class="kanban-item-assignee">
+                    <div class="avatar small">A</div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -258,5 +643,190 @@
       </div>
     </main>
   </div>
+  
+  <!-- Modal for adding/editing failures -->
+  <div class="modal" id="failureModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div class="modal-title">New Failure</div>
+        <button class="modal-close" id="closeModal">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="failureForm">
+          <div class="form-group">
+            <label class="form-label" for="failureTitle">Title</label>
+            <input type="text" id="failureTitle" class="form-input" placeholder="Brief, descriptive title">
+          </div>
+          
+          <div class="form-input-group">
+            <div class="form-group">
+              <label class="form-label" for="failureType">Type</label>
+              <select id="failureType" class="form-input">
+                <option>API</option>
+                <option>UI</option>
+                <option>Performance</option>
+                <option>Security</option>
+                <option>Mobile</option>
+                <option>Data</option>
+                <option>Feature</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="failurePriority">Priority</label>
+              <select id="failurePriority" class="form-input">
+                <option>High</option>
+                <option selected>Medium</option>
+                <option>Low</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="failureStatus">Status</label>
+              <select id="failureStatus" class="form-input">
+                <option selected>New</option>
+                <option>In Progress</option>
+                <option>Fixed</option>
+                <option>Won't Fix</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label" for="failureDescription">Description</label>
+            <textarea id="failureDescription" class="form-textarea" placeholder="Detailed description of the failure"></textarea>
+          </div>
+          
+          <div class="form-input-group">
+            <div class="form-group">
+              <label class="form-label" for="failureTestCase">Related Test Case</label>
+              <select id="failureTestCase" class="form-input">
+                <option>None</option>
+                <option>TC-1025: User Registration - Valid data</option>
+                <option>TC-1042: Payment Processing - Credit Card</option>
+                <option>TC-1087: API Authentication</option>
+                <option>TC-1093: Mobile Search Functionality</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="failureAssignee">Assignee</label>
+              <select id="failureAssignee" class="form-input">
+                <option>Unassigned</option>
+                <option>Jane Smith</option>
+                <option>Tom Johnson</option>
+                <option>Admin</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label" for="failureSteps">Steps to Reproduce</label>
+            <textarea id="failureSteps" class="form-textarea" placeholder="Step-by-step instructions to reproduce the issue"></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="button-secondary" id="cancelButton">Cancel</button>
+        <button class="button" id="saveFailureButton">Save Failure</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Kanban item drag-and-drop functionality
+      let draggedItem = null;
+      
+      const kanbanItems = document.querySelectorAll('.kanban-item');
+      const kanbanColumns = document.querySelectorAll('.kanban-items');
+      
+      // Make items draggable
+      kanbanItems.forEach(item => {
+        item.setAttribute('draggable', true);
+        
+        item.addEventListener('dragstart', function(e) {
+          draggedItem = this;
+          setTimeout(() => this.style.opacity = '0.5', 0);
+        });
+        
+        item.addEventListener('dragend', function() {
+          draggedItem = null;
+          this.style.opacity = '1';
+          
+          // Update column counts
+          document.querySelectorAll('.kanban-column').forEach(column => {
+            const count = column.querySelector('.kanban-items').querySelectorAll('.kanban-item').length;
+            column.querySelector('.kanban-column-count').textContent = count;
+          });
+        });
+        
+        // Item click opens the edit modal
+        item.addEventListener('click', function() {
+          openEditModal(this.getAttribute('data-id'));
+        });
+      });
+      
+      // Make columns droppable
+      kanbanColumns.forEach(column => {
+        column.addEventListener('dragover', function(e) {
+          e.preventDefault();
+          this.style.backgroundColor = '#f9fafb';
+        });
+        
+        column.addEventListener('dragleave', function() {
+          this.style.backgroundColor = '';
+        });
+        
+        column.addEventListener('drop', function(e) {
+          e.preventDefault();
+          this.style.backgroundColor = '';
+          if (draggedItem) {
+            this.appendChild(draggedItem);
+          }
+        });
+      });
+      
+      // Modal functionality
+      const modal = document.getElementById('failureModal');
+      const newFailureButton = document.getElementById('newFailureButton');
+      const closeModal = document.getElementById('closeModal');
+      const cancelButton = document.getElementById('cancelButton');
+      const saveFailureButton = document.getElementById('saveFailureButton');
+      
+      function openNewModal() {
+        document.querySelector('.modal-title').textContent = 'New Failure';
+        document.getElementById('failureForm').reset();
+        modal.classList.add('show');
+      }
+      
+      function openEditModal(id) {
+        document.querySelector('.modal-title').textContent = 'Edit Failure';
+        
+        // In a real app, you would fetch the failure data by ID
+        // For demo purposes, we'll just populate with dummy data
+        document.getElementById('failureTitle').value = 'Edit: ' + document.querySelector(`.kanban-item[data-id="${id}"] .kanban-item-title`).textContent;
+        document.getElementById('failureDescription').value = document.querySelector(`.kanban-item[data-id="${id}"] .kanban-item-description`).textContent.trim();
+        
+        modal.classList.add('show');
+      }
+      
+      function closeModalFunction() {
+        modal.classList.remove('show');
+      }
+      
+      newFailureButton.addEventListener('click', openNewModal);
+      closeModal.addEventListener('click', closeModalFunction);
+      cancelButton.addEventListener('click', closeModalFunction);
+      
+      saveFailureButton.addEventListener('click', function() {
+        // In a real app, you would save the form data to the server
+        alert('Failure saved successfully!');
+        closeModalFunction();
+      });
+    });
+  </script>
 </body>
 </html>

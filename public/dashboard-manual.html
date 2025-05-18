@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manual Testing Dashboard - TestPilot QA Platform</title>
+  <meta name="description" content="Professional manual testing dashboard with test case management, execution tracking and reporting">
+  
+  <!-- Open Graph tags for better social sharing -->
+  <meta property="og:title" content="TestPilot QA Platform - Manual Testing">
+  <meta property="og:description" content="Professional QA platform for organized manual testing with rich test case management">
+  <meta property="og:type" content="website">
+  
+  <link href="styles.css" rel="stylesheet">
+</head>
+<body>
+  <div class="layout">
+    <header>
+      <div class="logo">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="17 1 21 5 17 9"></polyline>
+          <path d="M3 11V9a4 4 0 0 1 4-4h14"></path>
+          <polyline points="7 23 3 19 7 15"></polyline>
+          <path d="M21 13v2a4 4 0 0 1-4 4H3"></path>
+        </svg>
+        TestPilot
+      </div>
+      
+      <div class="user-menu">
+        <span class="connection-status">Connected to DB</span>
+        <div class="avatar">A</div>
+      </div>
+    </header>
+    
+    <div class="sidebar">
+      <div class="sidebar-section">
+        <h3 class="sidebar-title">Dashboards</h3>
+        <a href="index.html" class="nav-item">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+            <line x1="3" y1="9" x2="21" y2="9"></line>
+            <line x1="9" y1="21" x2="9" y2="9"></line>
+          </svg>
+          Automated Tests
+        </a>
+        <a href="dashboard-manual.html" class="nav-item active">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="16" y1="13" x2="8" y2="13"></line>
+            <line x1="16" y1="17" x2="8" y2="17"></line>
+            <polyline points="10 9 9 9 8 9"></polyline>
+          </svg>
+          Manual Tests
+        </a>
+      </div>
+      
+      <div class="sidebar-section">
+        <h3 class="sidebar-title">Test Management</h3>
+        <a href="test-cases.html" class="nav-item">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="12" y1="18" x2="12" y2="12"></line>
+            <line x1="9" y1="15" x2="15" y2="15"></line>
+          </svg>
+          Test Cases
+        </a>
+        <a href="test-suites.html" class="nav-item">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+          </svg>
+          Test Suites
+        </a>
+        <a href="test-plans.html" class="nav-item">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+            <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+            <path d="M9 14l2 2 4-4"></path>
+          </svg>
+          Test Plans
+        </a>
+      </div>
+      
+      <div class="sidebar-section">
+        <h3 class="sidebar-title">Test Execution</h3>
+        <a href="test-runs.html" class="nav-item">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+          </svg>
+          Test Runs
+        </a>
+        <a href="manual-execution.html" class="nav-item">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path>
+            <line x1="4" y1="22" x2="4" y2="15"></line>
+          </svg>
+          Manual Execution
+        </a>
+        <a href="automated-results.html" class="nav-item">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+          </svg>
+          Automated Results
+        </a>
+      </div>
+      
+      <div class="sidebar-section">
+        <h3 class="sidebar-title">Analysis</h3>
+        <a href="failures.html" class="nav-item">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+            <line x1="12" y1="9" x2="12" y2="13"></line>
+            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+          </svg>
+          Failure Tracking
+        </a>
+        <a href="reports.html" class="nav-item">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
+            <polyline points="13 2 13 9 20 9"></polyline>
+          </svg>
+          Reports
+        </a>
+        <a href="metrics.html" class="nav-item">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="20" x2="18" y2="10"></line>
+            <line x1="12" y1="20" x2="12" y2="4"></line>
+            <line x1="6" y1="20" x2="6" y2="14"></line>
+          </svg>
+          Metrics
+        </a>
+      </div>
+    </div>
+    
+    <main>
+      <div class="page-header">
+        <h1 class="page-title">Manual Testing Dashboard</h1>
+        <div class="actions">
+          <select class="select">
+            <option>Last 30 days</option>
+            <option>Last 7 days</option>
+            <option>Last 24 hours</option>
+            <option>Custom range</option>
+          </select>
+          <button class="button">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="12" y1="18" x2="12" y2="12"></line>
+              <line x1="9" y1="15" x2="15" y2="15"></line>
+            </svg>
+            New Test Case
+          </button>
+        </div>
+      </div>
+      
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-card-title">Test Cases</div>
+          <div class="stat-card-value">847</div>
+          <div class="stat-card-trend positive">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline>
+              <polyline points="16 7 22 7 22 13"></polyline>
+            </svg>
+            28 new this month
+          </div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-card-title">Pass Rate</div>
+          <div class="stat-card-value">89.7%</div>
+          <div class="stat-card-trend positive">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline>
+              <polyline points="16 7 22 7 22 13"></polyline>
+            </svg>
+            2.3% from last month
+          </div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-card-title">Execution Time</div>
+          <div class="stat-card-value">456h</div>
+          <div class="stat-card-trend negative">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="22 17 13.5 8.5 8.5 13.5 2 7"></polyline>
+              <polyline points="16 17 22 17 22 11"></polyline>
+            </svg>
+            42h more than last month
+          </div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-card-title">Test Plans</div>
+          <div class="stat-card-value">12</div>
+          <div class="stat-card-trend positive">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline>
+              <polyline points="16 7 22 7 22 13"></polyline>
+            </svg>
+            3 more than last month
+          </div>
+        </div>
+      </div>
+      
+      <div class="dashboard-grid">
+        <div class="dashboard-card">
+          <div class="dashboard-card-header">
+            <div class="dashboard-card-title">Test Status Distribution</div>
+            <div class="dashboard-card-actions">
+              <select class="select small">
+                <option>Current Sprint</option>
+                <option>Last Sprint</option>
+                <option>All-time</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="donut-chart-container">
+            <div class="donut-chart">
+              <div class="donut-segment" style="border-color: #10b981; clip-path: polygon(50% 0%, 100% 0%, 100% 100%, 50% 100%, 50% 0%); transform: rotate(0deg);"></div>
+              <div class="donut-segment" style="border-color: #f59e0b; clip-path: polygon(50% 0%, 100% 0%, 100% 28%, 50% 28%, 50% 0%); transform: rotate(45deg);"></div>
+              <div class="donut-segment" style="border-color: #ef4444; clip-path: polygon(50% 0%, 100% 0%, 100% 12%, 50% 12%, 50% 0%); transform: rotate(73deg);"></div>
+              <div class="donut-segment" style="border-color: #6b7280; clip-path: polygon(50% 0%, 100% 0%, 100% 5%, 50% 5%, 50% 0%); transform: rotate(85deg);"></div>
+              <div class="donut-center">89.7%</div>
+            </div>
+          </div>
+          
+          <div class="dashboard-card-footer distribution">
+            <div class="legend-item">
+              <div class="legend-marker success"></div>
+              <div>Passed</div>
+              <div class="legend-value">547 (59.8%)</div>
+            </div>
+            <div class="legend-item">
+              <div class="legend-marker" style="background-color: #f59e0b;"></div>
+              <div>Blocked</div>
+              <div class="legend-value">142 (15.5%)</div>
+            </div>
+            <div class="legend-item">
+              <div class="legend-marker failure"></div>
+              <div>Failed</div>
+              <div class="legend-value">95 (10.4%)</div>
+            </div>
+            <div class="legend-item">
+              <div class="legend-marker" style="background-color: #6b7280;"></div>
+              <div>Not Run</div>
+              <div class="legend-value">63 (6.9%)</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="dashboard-card">
+          <div class="dashboard-card-header">
+            <div class="dashboard-card-title">Test Coverage by Area</div>
+            <div class="dashboard-card-actions">
+              <button class="button-link">View all</button>
+            </div>
+          </div>
+          
+          <div class="horizontal-bar-chart">
+            <div class="horizontal-bar">
+              <div class="horizontal-bar-label">User Management</div>
+              <div class="horizontal-bar-container">
+                <div class="horizontal-bar-fill" style="width: 92%; background-color: #10b981;"></div>
+              </div>
+              <div class="horizontal-bar-value">92%</div>
+            </div>
+            <div class="horizontal-bar">
+              <div class="horizontal-bar-label">Authentication</div>
+              <div class="horizontal-bar-container">
+                <div class="horizontal-bar-fill" style="width: 88%; background-color: #10b981;"></div>
+              </div>
+              <div class="horizontal-bar-value">88%</div>
+            </div>
+            <div class="horizontal-bar">
+              <div class="horizontal-bar-label">Profile</div>
+              <div class="horizontal-bar-container">
+                <div class="horizontal-bar-fill" style="width: 86%; background-color: #10b981;"></div>
+              </div>
+              <div class="horizontal-bar-value">86%</div>
+            </div>
+            <div class="horizontal-bar">
+              <div class="horizontal-bar-label">Payment</div>
+              <div class="horizontal-bar-container">
+                <div class="horizontal-bar-fill" style="width: 78%; background-color: #10b981;"></div>
+              </div>
+              <div class="horizontal-bar-value">78%</div>
+            </div>
+            <div class="horizontal-bar">
+              <div class="horizontal-bar-label">Search</div>
+              <div class="horizontal-bar-container">
+                <div class="horizontal-bar-fill" style="width: 65%; background-color: #f59e0b;"></div>
+              </div>
+              <div class="horizontal-bar-value">65%</div>
+            </div>
+            <div class="horizontal-bar">
+              <div class="horizontal-bar-label">Notifications</div>
+              <div class="horizontal-bar-container">
+                <div class="horizontal-bar-fill" style="width: 52%; background-color: #f59e0b;"></div>
+              </div>
+              <div class="horizontal-bar-value">52%</div>
+            </div>
+            <div class="horizontal-bar">
+              <div class="horizontal-bar-label">Reporting</div>
+              <div class="horizontal-bar-container">
+                <div class="horizontal-bar-fill" style="width: 35%; background-color: #ef4444;"></div>
+              </div>
+              <div class="horizontal-bar-value">35%</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="dashboard-card">
+          <div class="dashboard-card-header">
+            <div class="dashboard-card-title">Recent Test Executions</div>
+            <div class="dashboard-card-actions">
+              <button class="button-link">View all</button>
+            </div>
+          </div>
+          
+          <div class="table-responsive">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Test Plan</th>
+                  <th>Status</th>
+                  <th>Progress</th>
+                  <th>Updated</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Mobile App v2.4</td>
+                  <td><span class="status-badge warning">In Progress</span></td>
+                  <td>
+                    <div class="progress-bar">
+                      <div class="progress" style="width: 68%;"></div>
+                    </div>
+                    <span class="progress-text">68%</span>
+                  </td>
+                  <td>2 hours ago</td>
+                </tr>
+                <tr>
+                  <td>Payment Gateway</td>
+                  <td><span class="status-badge success">Completed</span></td>
+                  <td>
+                    <div class="progress-bar">
+                      <div class="progress" style="width: 100%;"></div>
+                    </div>
+                    <span class="progress-text">100%</span>
+                  </td>
+                  <td>1 day ago</td>
+                </tr>
+                <tr>
+                  <td>User Profile Flow</td>
+                  <td><span class="status-badge warning">In Progress</span></td>
+                  <td>
+                    <div class="progress-bar">
+                      <div class="progress" style="width: 32%;"></div>
+                    </div>
+                    <span class="progress-text">32%</span>
+                  </td>
+                  <td>2 days ago</td>
+                </tr>
+                <tr>
+                  <td>Registration Flow</td>
+                  <td><span class="status-badge success">Completed</span></td>
+                  <td>
+                    <div class="progress-bar">
+                      <div class="progress" style="width: 100%;"></div>
+                    </div>
+                    <span class="progress-text">100%</span>
+                  </td>
+                  <td>3 days ago</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        
+        <div class="dashboard-card">
+          <div class="dashboard-card-header">
+            <div class="dashboard-card-title">Issue Distribution</div>
+            <div class="dashboard-card-actions">
+              <select class="select small">
+                <option>By Severity</option>
+                <option>By Component</option>
+                <option>By Status</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="donut-chart-container">
+            <div class="donut-chart">
+              <div class="donut-segment" style="border-color: #ef4444; clip-path: polygon(50% 0%, 100% 0%, 100% 25%, 50% 25%, 50% 0%); transform: rotate(0deg);"></div>
+              <div class="donut-segment" style="border-color: #f97316; clip-path: polygon(50% 0%, 100% 0%, 100% 35%, 50% 35%, 50% 0%); transform: rotate(25deg);"></div>
+              <div class="donut-segment" style="border-color: #f59e0b; clip-path: polygon(50% 0%, 100% 0%, 100% 25%, 50% 25%, 50% 0%); transform: rotate(60deg);"></div>
+              <div class="donut-segment" style="border-color: #10b981; clip-path: polygon(50% 0%, 100% 0%, 100% 15%, 50% 15%, 50% 0%); transform: rotate(85deg);"></div>
+            </div>
+          </div>
+          
+          <div class="dashboard-card-footer distribution">
+            <div class="legend-item">
+              <div class="legend-marker" style="background-color: #ef4444;"></div>
+              <div>Critical</div>
+              <div class="legend-value">17 (25%)</div>
+            </div>
+            <div class="legend-item">
+              <div class="legend-marker" style="background-color: #f97316;"></div>
+              <div>High</div>
+              <div class="legend-value">24 (35%)</div>
+            </div>
+            <div class="legend-item">
+              <div class="legend-marker" style="background-color: #f59e0b;"></div>
+              <div>Medium</div>
+              <div class="legend-value">17 (25%)</div>
+            </div>
+            <div class="legend-item">
+              <div class="legend-marker" style="background-color: #10b981;"></div>
+              <div>Low</div>
+              <div class="legend-value">10 (15%)</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="dashboard-card full-width">
+        <div class="dashboard-card-header">
+          <div class="dashboard-card-title">Test Execution Timeline</div>
+          <div class="dashboard-card-actions">
+            <select class="select small">
+              <option>Last 7 days</option>
+              <option>Last 30 days</option>
+              <option>Last quarter</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="chart-container" style="height: 250px;">
+          <div class="chart-placeholder">
+            <div style="display: flex; height: 100%; align-items: flex-end; width: 100%;">
+              <div style="flex: 1; display: flex; flex-direction: column; align-items: center; height: 100%;">
+                <div style="width: 80%; height: 65%; display: flex; align-items: flex-end;">
+                  <div style="width: 30%; height: 100%; background-color: #10b981; margin-right: 3px;"></div>
+                  <div style="width: 30%; height: 60%; background-color: #f59e0b; margin-right: 3px;"></div>
+                  <div style="width: 30%; height: 15%; background-color: #ef4444;"></div>
+                </div>
+                <div style="margin-top: 8px;">May 12</div>
+              </div>
+              <div style="flex: 1; display: flex; flex-direction: column; align-items: center; height: 100%;">
+                <div style="width: 80%; height: 45%; display: flex; align-items: flex-end;">
+                  <div style="width: 30%; height: 100%; background-color: #10b981; margin-right: 3px;"></div>
+                  <div style="width: 30%; height: 40%; background-color: #f59e0b; margin-right: 3px;"></div>
+                  <div style="width: 30%; height: 20%; background-color: #ef4444;"></div>
+                </div>
+                <div style="margin-top: 8px;">May 13</div>
+              </div>
+              <div style="flex: 1; display: flex; flex-direction: column; align-items: center; height: 100%;">
+                <div style="width: 80%; height: 85%; display: flex; align-items: flex-end;">
+                  <div style="width: 30%; height: 100%; background-color: #10b981; margin-right: 3px;"></div>
+                  <div style="width: 30%; height: 70%; background-color: #f59e0b; margin-right: 3px;"></div>
+                  <div style="width: 30%; height: 25%; background-color: #ef4444;"></div>
+                </div>
+                <div style="margin-top: 8px;">May 14</div>
+              </div>
+              <div style="flex: 1; display: flex; flex-direction: column; align-items: center; height: 100%;">
+                <div style="width: 80%; height: 55%; display: flex; align-items: flex-end;">
+                  <div style="width: 30%; height: 100%; background-color: #10b981; margin-right: 3px;"></div>
+                  <div style="width: 30%; height: 50%; background-color: #f59e0b; margin-right: 3px;"></div>
+                  <div style="width: 30%; height: 30%; background-color: #ef4444;"></div>
+                </div>
+                <div style="margin-top: 8px;">May 15</div>
+              </div>
+              <div style="flex: 1; display: flex; flex-direction: column; align-items: center; height: 100%;">
+                <div style="width: 80%; height: 70%; display: flex; align-items: flex-end;">
+                  <div style="width: 30%; height: 100%; background-color: #10b981; margin-right: 3px;"></div>
+                  <div style="width: 30%; height: 40%; background-color: #f59e0b; margin-right: 3px;"></div>
+                  <div style="width: 30%; height: 20%; background-color: #ef4444;"></div>
+                </div>
+                <div style="margin-top: 8px;">May 16</div>
+              </div>
+              <div style="flex: 1; display: flex; flex-direction: column; align-items: center; height: 100%;">
+                <div style="width: 80%; height: 60%; display: flex; align-items: flex-end;">
+                  <div style="width: 30%; height: 100%; background-color: #10b981; margin-right: 3px;"></div>
+                  <div style="width: 30%; height: 30%; background-color: #f59e0b; margin-right: 3px;"></div>
+                  <div style="width: 30%; height: 10%; background-color: #ef4444;"></div>
+                </div>
+                <div style="margin-top: 8px;">May 17</div>
+              </div>
+              <div style="flex: 1; display: flex; flex-direction: column; align-items: center; height: 100%;">
+                <div style="width: 80%; height: 75%; display: flex; align-items: flex-end;">
+                  <div style="width: 30%; height: 100%; background-color: #10b981; margin-right: 3px;"></div>
+                  <div style="width: 30%; height: 50%; background-color: #f59e0b; margin-right: 3px;"></div>
+                  <div style="width: 30%; height: 15%; background-color: #ef4444;"></div>
+                </div>
+                <div style="margin-top: 8px;">May 18</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="dashboard-card-footer" style="display: flex; justify-content: center; gap: 2rem;">
+          <div class="legend-item">
+            <div class="legend-marker" style="background-color: #10b981;"></div>
+            <div>Passed</div>
+          </div>
+          <div class="legend-item">
+            <div class="legend-marker" style="background-color: #f59e0b;"></div>
+            <div>Blocked</div>
+          </div>
+          <div class="legend-item">
+            <div class="legend-marker" style="background-color: #ef4444;"></div>
+            <div>Failed</div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // Simple client-side code to make the dashboard interactive
+    document.addEventListener('DOMContentLoaded', function() {
+      // Make buttons interactive
+      const buttons = document.querySelectorAll('.button, .button-link');
+      buttons.forEach(button => {
+        button.addEventListener('click', function() {
+          console.log('Button clicked:', this.textContent.trim());
+        });
+      });
+
+      // Make table rows interactive
+      const tableRows = document.querySelectorAll('tbody tr');
+      tableRows.forEach(row => {
+        row.addEventListener('click', function() {
+          const testName = this.querySelector('td').textContent;
+          console.log('Test execution selected:', testName);
+        });
+      });
+    });
+  </script>
+</body>
+</html>

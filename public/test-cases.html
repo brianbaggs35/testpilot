@@ -4,7 +4,163 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Test Cases - TestPilot QA Platform</title>
+  <meta name="description" content="Manage test cases with rich text editing, attachments, and organized test suites">
+  
+  <!-- Open Graph tags for better social sharing -->
+  <meta property="og:title" content="TestPilot QA Platform - Test Cases">
+  <meta property="og:description" content="Professional QA platform with comprehensive test case management">
+  <meta property="og:type" content="website">
+  
   <link href="styles.css" rel="stylesheet">
+  <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+  <style>
+    .ql-editor {
+      min-height: 200px;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    
+    .attachment-area {
+      padding: 1rem;
+      border: 2px dashed #d1d5db;
+      border-radius: 0.375rem;
+      text-align: center;
+      margin-top: 1rem;
+    }
+    
+    .attachment-list {
+      margin-top: 1rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    
+    .attachment-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem;
+      background-color: #f3f4f6;
+      border-radius: 0.25rem;
+      font-size: 0.75rem;
+    }
+    
+    .attachment-item svg {
+      flex-shrink: 0;
+    }
+    
+    .comment-section {
+      margin-top: 2rem;
+    }
+    
+    .comment {
+      padding: 1rem;
+      background-color: white;
+      border-radius: 0.5rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      margin-bottom: 1rem;
+    }
+    
+    .comment-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+    }
+    
+    .comment-author {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .comment-timestamp {
+      font-size: 0.75rem;
+      color: #6b7280;
+    }
+    
+    .comment-content {
+      margin-bottom: 0.5rem;
+    }
+    
+    .comment-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.75rem;
+      color: #6b7280;
+    }
+    
+    .comment-form {
+      margin-top: 1rem;
+    }
+    
+    .comment-textarea {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #d1d5db;
+      border-radius: 0.375rem;
+      resize: vertical;
+      min-height: 100px;
+      margin-bottom: 0.5rem;
+    }
+    
+    .user-info {
+      margin-bottom: 1rem;
+    }
+    
+    .tabs {
+      display: flex;
+      border-bottom: 1px solid #e5e7eb;
+      margin-bottom: 1.5rem;
+    }
+    
+    .tab {
+      padding: 0.75rem 1rem;
+      font-weight: 500;
+      color: #6b7280;
+      cursor: pointer;
+    }
+    
+    .tab.active {
+      color: #3b82f6;
+      border-bottom: 2px solid #3b82f6;
+    }
+    
+    .tab-content {
+      display: none;
+    }
+    
+    .tab-content.active {
+      display: block;
+    }
+    
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+    
+    .form-label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+    
+    .form-input {
+      width: 100%;
+      padding: 0.5rem 0.75rem;
+      border: 1px solid #d1d5db;
+      border-radius: 0.375rem;
+    }
+    
+    .form-input-group {
+      display: flex;
+      gap: 1rem;
+    }
+    
+    .form-input-group .form-group {
+      flex: 1;
+    }
+  </style>
 </head>
 <body>
   <div class="layout">
@@ -128,124 +284,386 @@
     
     <main>
       <div class="page-header">
-        <h1 class="page-title">Test Cases</h1>
-        <button class="button">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="12" y1="5" x2="12" y2="19"></line>
-            <line x1="5" y1="12" x2="19" y2="12"></line>
-          </svg>
-          Create Test Case
-        </button>
+        <h1 class="page-title">User Registration - Test Case</h1>
+        <div class="actions">
+          <button class="button" id="saveTestCase">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+              <polyline points="17 21 17 13 7 13 7 21"></polyline>
+              <polyline points="7 3 7 8 15 8"></polyline>
+            </svg>
+            Save
+          </button>
+        </div>
       </div>
       
-      <div class="table-section">
-        <div class="table-header">
-          <div class="table-title">All Test Cases</div>
-          <div class="table-actions">
-            <button class="button secondary">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
-              </svg>
-              Filter
-            </button>
+      <div class="tabs">
+        <div class="tab active" data-tab="details">Details</div>
+        <div class="tab" data-tab="steps">Steps & Expected Results</div>
+        <div class="tab" data-tab="attachments">Attachments</div>
+        <div class="tab" data-tab="comments">Comments</div>
+      </div>
+      
+      <div class="tab-content active" id="details-tab">
+        <div class="dashboard-card">
+          <div class="form-input-group">
+            <div class="form-group">
+              <label class="form-label" for="testCaseId">ID</label>
+              <input type="text" id="testCaseId" class="form-input" value="TC-1025" readonly>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="testCaseType">Type</label>
+              <select id="testCaseType" class="form-input">
+                <option selected>Manual</option>
+                <option>Automated</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="testCasePriority">Priority</label>
+              <select id="testCasePriority" class="form-input">
+                <option>Low</option>
+                <option selected>Medium</option>
+                <option>High</option>
+                <option>Critical</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="testCaseStatus">Status</label>
+              <select id="testCaseStatus" class="form-input">
+                <option>Draft</option>
+                <option selected>Active</option>
+                <option>Deprecated</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label" for="testCaseTitle">Title</label>
+            <input type="text" id="testCaseTitle" class="form-input" value="User Registration - Verify account creation with valid data">
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label" for="testCaseDescription">Description</label>
+            <div id="testCaseDescription">
+              <p>This test case verifies that a new user can successfully register an account using valid data. The system should create a new user account, send a verification email, and redirect the user to the success page.</p>
+            </div>
+          </div>
+          
+          <div class="form-input-group">
+            <div class="form-group">
+              <label class="form-label" for="testCaseComponent">Component</label>
+              <select id="testCaseComponent" class="form-input">
+                <option>Authentication</option>
+                <option selected>User Management</option>
+                <option>Payment Processing</option>
+                <option>Order Management</option>
+                <option>Reporting</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="testCaseSuite">Test Suite</label>
+              <select id="testCaseSuite" class="form-input">
+                <option>None</option>
+                <option selected>User Management</option>
+                <option>Core Functionality</option>
+                <option>Security</option>
+                <option>Performance</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="testCaseEstimate">Estimated Duration (minutes)</label>
+              <input type="number" id="testCaseEstimate" class="form-input" value="15">
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label" for="testCasePreconditions">Preconditions</label>
+            <div id="testCasePreconditions">
+              <ol>
+                <li>Testing environment is up and running</li>
+                <li>Database is accessible and configured properly</li>
+                <li>Email service is configured and operational</li>
+                <li>The email address used for registration does not already exist in the system</li>
+              </ol>
+            </div>
           </div>
         </div>
-        
-        <table>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Title</th>
-              <th>Type</th>
-              <th>Priority</th>
-              <th>Status</th>
-              <th>Created By</th>
-              <th>Created At</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>1</td>
-              <td>Login functionality</td>
-              <td>Manual</td>
-              <td>High</td>
-              <td><span class="status-badge status-pass">Active</span></td>
-              <td>Admin User</td>
-              <td>2025-05-18</td>
-              <td>
-                <button class="button secondary">Edit</button>
-              </td>
-            </tr>
-            <tr>
-              <td>2</td>
-              <td>User registration</td>
-              <td>Manual</td>
-              <td>High</td>
-              <td><span class="status-badge status-pass">Active</span></td>
-              <td>Admin User</td>
-              <td>2025-05-18</td>
-              <td>
-                <button class="button secondary">Edit</button>
-              </td>
-            </tr>
-            <tr>
-              <td>3</td>
-              <td>Password reset</td>
-              <td>Manual</td>
-              <td>Medium</td>
-              <td><span class="status-badge status-pass">Active</span></td>
-              <td>Admin User</td>
-              <td>2025-05-18</td>
-              <td>
-                <button class="button secondary">Edit</button>
-              </td>
-            </tr>
-            <tr>
-              <td>4</td>
-              <td>Search functionality</td>
-              <td>Manual</td>
-              <td>Medium</td>
-              <td><span class="status-badge status-pass">Active</span></td>
-              <td>Admin User</td>
-              <td>2025-05-18</td>
-              <td>
-                <button class="button secondary">Edit</button>
-              </td>
-            </tr>
-            <tr>
-              <td>5</td>
-              <td>API Authentication</td>
-              <td>Automated</td>
-              <td>High</td>
-              <td><span class="status-badge status-pass">Active</span></td>
-              <td>Admin User</td>
-              <td>2025-05-18</td>
-              <td>
-                <button class="button secondary">Edit</button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-        
-        <div class="table-footer">
-          <div>Showing 5 of 5 test cases</div>
-          <div class="pagination">
-            <div class="pagination-item">
+      </div>
+      
+      <div class="tab-content" id="steps-tab">
+        <div class="dashboard-card">
+          <div id="stepsEditor">
+            <h4>Test Steps</h4>
+            <ol>
+              <li>Navigate to the registration page</li>
+              <li>Enter valid data in all required fields:
+                <ul>
+                  <li>First Name: John</li>
+                  <li>Last Name: Doe</li>
+                  <li>Email: john.doe@example.com</li>
+                  <li>Password: StrongP@ss123</li>
+                  <li>Confirm Password: StrongP@ss123</li>
+                </ul>
+              </li>
+              <li>Check the "I agree to Terms and Conditions" checkbox</li>
+              <li>Click the "Register" button</li>
+              <li>Verify that the success message is displayed</li>
+              <li>Check the email inbox for a verification email</li>
+              <li>Click on the verification link in the email</li>
+              <li>Verify that the account is activated</li>
+              <li>Try to log in with the created credentials</li>
+            </ol>
+            
+            <h4>Expected Results</h4>
+            <ol>
+              <li>Registration page loads without errors</li>
+              <li>All fields accept the input without validation errors</li>
+              <li>Checkbox can be selected</li>
+              <li>Registration form submits successfully</li>
+              <li>Success message "Your account has been created. Please check your email to verify your account." is displayed</li>
+              <li>Verification email is received with a valid verification link</li>
+              <li>Clicking the verification link redirects to the account verification page with a success message</li>
+              <li>System shows the account as activated</li>
+              <li>User can log in successfully with the created email and password</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+      
+      <div class="tab-content" id="attachments-tab">
+        <div class="dashboard-card">
+          <div class="attachment-area">
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#d1d5db" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="17 8 12 3 7 8"></polyline>
+              <line x1="12" y1="3" x2="12" y2="15"></line>
+            </svg>
+            <p>Drag and drop files here or click to upload</p>
+            <input type="file" id="fileUpload" style="display: none;" multiple>
+            <button class="button" id="uploadButton">Upload Files</button>
+          </div>
+          
+          <div class="attachment-list">
+            <div class="attachment-item">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="15 18 9 12 15 6"></polyline>
+                <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
+                <polyline points="13 2 13 9 20 9"></polyline>
               </svg>
+              registration_screenshot.png (432 KB)
+              <button class="icon-button">
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="3 6 5 6 21 6"></polyline>
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                </svg>
+              </button>
             </div>
-            <div class="pagination-item active">1</div>
-            <div class="pagination-item">
+            <div class="attachment-item">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="9 18 15 12 9 6"></polyline>
+                <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
+                <polyline points="13 2 13 9 20 9"></polyline>
               </svg>
+              success_page.png (218 KB)
+              <button class="icon-button">
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="3 6 5 6 21 6"></polyline>
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                </svg>
+              </button>
+            </div>
+            <div class="attachment-item">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+              </svg>
+              verification_email.html (24 KB)
+              <button class="icon-button">
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="3 6 5 6 21 6"></polyline>
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="tab-content" id="comments-tab">
+        <div class="dashboard-card">
+          <div class="comment-section">
+            <h3>Comments (3)</h3>
+            
+            <div class="comment">
+              <div class="comment-header">
+                <div class="comment-author">
+                  <div class="avatar small">JS</div>
+                  <div>Jane Smith</div>
+                </div>
+                <div class="comment-timestamp">May 16, 2025, 10:23 AM</div>
+              </div>
+              <div class="comment-content">
+                <p>I've added screenshots of the registration flow to help with execution. Let me know if more details are needed.</p>
+              </div>
+              <div class="comment-actions">
+                <span>2 likes</span>
+                <span>•</span>
+                <button>Reply</button>
+              </div>
+            </div>
+            
+            <div class="comment">
+              <div class="comment-header">
+                <div class="comment-author">
+                  <div class="avatar small">TJ</div>
+                  <div>Tom Johnson</div>
+                </div>
+                <div class="comment-timestamp">May 16, 2025, 11:45 AM</div>
+              </div>
+              <div class="comment-content">
+                <p>We should add validation for the password field to ensure it meets security requirements. The system requires at least 8 characters, one uppercase letter, one lowercase letter, and one number.</p>
+              </div>
+              <div class="comment-actions">
+                <span>1 like</span>
+                <span>•</span>
+                <button>Reply</button>
+              </div>
+              
+              <div style="margin-left: 2rem; margin-top: 1rem;">
+                <div class="comment">
+                  <div class="comment-header">
+                    <div class="comment-author">
+                      <div class="avatar small">JS</div>
+                      <div>Jane Smith</div>
+                    </div>
+                    <div class="comment-timestamp">May 16, 2025, 1:20 PM</div>
+                  </div>
+                  <div class="comment-content">
+                    <p>Good point! I've updated the test case to include password validation in step 2. The example password now meets all requirements.</p>
+                  </div>
+                  <div class="comment-actions">
+                    <span>0 likes</span>
+                    <span>•</span>
+                    <button>Reply</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="comment-form">
+              <h4>Add a comment</h4>
+              <textarea class="comment-textarea" placeholder="Type your comment here..."></textarea>
+              <button class="button">Post Comment</button>
             </div>
           </div>
         </div>
       </div>
     </main>
   </div>
+  
+  <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Rich text editors
+      const descriptionEditor = new Quill('#testCaseDescription', {
+        theme: 'snow',
+        modules: {
+          toolbar: [
+            ['bold', 'italic', 'underline', 'strike'],
+            ['blockquote', 'code-block'],
+            [{ 'header': 1 }, { 'header': 2 }],
+            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+            [{ 'script': 'sub'}, { 'script': 'super' }],
+            [{ 'indent': '-1'}, { 'indent': '+1' }],
+            ['link', 'image'],
+            [{ 'color': [] }, { 'background': [] }],
+            [{ 'align': [] }],
+            ['clean']
+          ]
+        }
+      });
+      
+      const preconditionsEditor = new Quill('#testCasePreconditions', {
+        theme: 'snow',
+        modules: {
+          toolbar: [
+            ['bold', 'italic', 'underline'],
+            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+            ['link'],
+            ['clean']
+          ]
+        }
+      });
+      
+      const stepsEditor = new Quill('#stepsEditor', {
+        theme: 'snow',
+        modules: {
+          toolbar: [
+            ['bold', 'italic', 'underline'],
+            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+            [{ 'indent': '-1'}, { 'indent': '+1' }],
+            ['link'],
+            ['clean']
+          ]
+        }
+      });
+      
+      // Tab switching
+      const tabs = document.querySelectorAll('.tab');
+      const tabContents = document.querySelectorAll('.tab-content');
+      
+      tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+          const tabId = tab.getAttribute('data-tab');
+          
+          // Remove active class from all tabs and contents
+          tabs.forEach(t => t.classList.remove('active'));
+          tabContents.forEach(c => c.classList.remove('active'));
+          
+          // Add active class to current tab and content
+          tab.classList.add('active');
+          document.getElementById(`${tabId}-tab`).classList.add('active');
+        });
+      });
+      
+      // File upload button
+      const uploadButton = document.getElementById('uploadButton');
+      const fileUpload = document.getElementById('fileUpload');
+      
+      uploadButton.addEventListener('click', () => {
+        fileUpload.click();
+      });
+      
+      fileUpload.addEventListener('change', () => {
+        const files = fileUpload.files;
+        console.log('Uploading files:', files);
+        // Here you would normally handle the file upload to a server
+        // For now, we'll just log the file details
+        
+        if (files.length > 0) {
+          for (let i = 0; i < files.length; i++) {
+            console.log(`- ${files[i].name} (${Math.round(files[i].size / 1024)} KB)`);
+          }
+          alert(`${files.length} file(s) selected for upload.`);
+        }
+      });
+      
+      // Save button
+      const saveButton = document.getElementById('saveTestCase');
+      saveButton.addEventListener('click', () => {
+        alert('Test case saved successfully!');
+      });
+      
+      // Comment reply buttons
+      const replyButtons = document.querySelectorAll('.comment-actions button');
+      replyButtons.forEach(button => {
+        button.addEventListener('click', () => {
+          const commentForm = document.querySelector('.comment-form');
+          const textarea = commentForm.querySelector('textarea');
+          textarea.focus();
+          textarea.placeholder = 'Type your reply here...';
+          commentForm.scrollIntoView({ behavior: 'smooth' });
+        });
+      });
+    });
+  </script>
 </body>
 </html>
