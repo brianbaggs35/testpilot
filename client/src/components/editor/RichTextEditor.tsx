@@ -1,264 +1,237 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import ReactQuill from 'react-quill';
+import { Paperclip, X, FileText, Image, File } from 'lucide-react';
 import 'react-quill/dist/quill.snow.css';
-import { Button } from '../ui/button';
-import { Paperclip, Image, Link, Save } from 'lucide-react';
+
+interface Attachment {
+  id: string;
+  name: string;
+  size: number;
+  type: string;
+  url: string;
+}
 
 interface RichTextEditorProps {
   initialValue?: string;
-  onChange?: (value: string) => void;
-  onSave?: (value: string) => void;
-  placeholder?: string;
+  attachments?: Attachment[];
+  onChange?: (content: string) => void;
+  onAttachmentAdd?: (file: File) => Promise<Attachment>;
+  onAttachmentRemove?: (id: string) => Promise<void>;
   readOnly?: boolean;
-  height?: number | string;
-  attachmentsEnabled?: boolean;
-  toolbarOptions?: any;
+  placeholder?: string;
+  height?: string | number;
 }
 
 export const RichTextEditor: React.FC<RichTextEditorProps> = ({
   initialValue = '',
+  attachments = [],
   onChange,
-  onSave,
-  placeholder = 'Write test case steps here...',
+  onAttachmentAdd,
+  onAttachmentRemove,
   readOnly = false,
-  height = 200,
-  attachmentsEnabled = true,
-  toolbarOptions
+  placeholder = 'Enter your test case steps, preconditions, and expected results here...',
+  height = 300
 }) => {
   const [value, setValue] = useState(initialValue);
-  const [isMounted, setIsMounted] = useState(false);
-
-  // Handle server-side rendering with react-quill
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
+  const [files, setFiles] = useState<Attachment[]>(attachments);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    setValue(initialValue);
-  }, [initialValue]);
+    setFiles(attachments);
+  }, [attachments]);
 
   const handleChange = (content: string) => {
     setValue(content);
-    onChange?.(content);
+    if (onChange) {
+      onChange(content);
+    }
   };
 
-  const handleSave = () => {
-    onSave?.(value);
+  const handleFileClick = () => {
+    if (readOnly) return;
+    fileInputRef.current?.click();
   };
 
-  // File upload handler
-  const handleFileUpload = (callback: (url: string) => void) => {
-    const input = document.createElement('input');
-    input.setAttribute('type', 'file');
-    input.setAttribute('accept', 'image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt');
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!onAttachmentAdd || !e.target.files || e.target.files.length === 0) return;
     
-    input.onchange = () => {
-      if (input.files?.length) {
-        const file = input.files[0];
-        const reader = new FileReader();
-        
-        reader.onload = () => {
-          // In a real implementation, you would upload to server and get a URL
-          // For demo purposes, we'll use a data URL or mock URL
-          const fileUrl = reader.result as string;
-          callback(fileUrl);
-        };
-        
-        reader.readAsDataURL(file);
+    setIsUploading(true);
+    
+    try {
+      const file = e.target.files[0];
+      const newAttachment = await onAttachmentAdd(file);
+      setFiles([...files, newAttachment]);
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      // Handle error appropriately
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
       }
-    };
-    
-    input.click();
+    }
   };
 
-  const handleImageUpload = () => {
-    const input = document.createElement('input');
-    input.setAttribute('type', 'file');
-    input.setAttribute('accept', 'image/*');
+  const handleRemoveFile = async (id: string) => {
+    if (!onAttachmentRemove || readOnly) return;
     
-    input.onchange = () => {
-      if (input.files?.length) {
-        const file = input.files[0];
-        const reader = new FileReader();
-        
-        reader.onload = () => {
-          // In a real implementation, you would upload to server and get a URL
-          // For now, we'll use a data URL
-          const imageUrl = reader.result as string;
-          
-          // Get the Quill editor instance
-          const quillEditor = (document.querySelector('.quill') as any)?.querySelector('.ql-editor');
-          if (quillEditor) {
-            // Insert image at current cursor position
-            const range = window.getSelection()?.getRangeAt(0);
-            const img = document.createElement('img');
-            img.src = imageUrl;
-            img.style.maxWidth = '100%';
-            
-            if (range) {
-              range.insertNode(img);
-            } else {
-              quillEditor.appendChild(img);
-            }
-          }
-        };
-        
-        reader.readAsDataURL(file);
-      }
-    };
-    
-    input.click();
+    try {
+      await onAttachmentRemove(id);
+      setFiles(files.filter(file => file.id !== id));
+    } catch (error) {
+      console.error('Error removing file:', error);
+      // Handle error appropriately
+    }
+  };
+
+  const getFileIcon = (type: string) => {
+    if (type.startsWith('image/')) {
+      return <Image className="h-5 w-5 text-blue-500" />;
+    } else if (type.includes('pdf')) {
+      return <FileText className="h-5 w-5 text-red-500" />;
+    } else {
+      return <File className="h-5 w-5 text-gray-500" />;
+    }
+  };
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes < 1024) return bytes + ' B';
+    else if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+    else return (bytes / 1048576).toFixed(1) + ' MB';
   };
 
   const modules = {
-    toolbar: toolbarOptions || {
-      container: [
-        [{ 'header': [1, 2, 3, false] }],
-        ['bold', 'italic', 'underline', 'strike'],
-        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-        [{ 'color': [] }, { 'background': [] }],
-        ['link', 'image', 'code-block'],
-        ['clean']
-      ],
-      handlers: {
-        image: handleImageUpload
-      }
-    }
+    toolbar: [
+      [{ 'header': [1, 2, 3, false] }],
+      ['bold', 'italic', 'underline', 'strike'],
+      [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+      [{ 'indent': '-1' }, { 'indent': '+1' }],
+      [{ 'color': [] }, { 'background': [] }],
+      ['link', 'image', 'code-block'],
+      ['clean']
+    ]
   };
 
   const formats = [
     'header',
     'bold', 'italic', 'underline', 'strike',
-    'list', 'bullet',
+    'list', 'bullet', 'indent',
     'color', 'background',
     'link', 'image', 'code-block'
   ];
 
-  // Don't render on server
-  if (!isMounted) {
-    return <div style={{ height: height, border: '1px solid #ccc' }}>Loading editor...</div>;
-  }
-
   return (
     <div className="rich-text-editor">
-      <div className="editor-container" style={{ height: typeof height === 'number' ? `${height}px` : height }}>
+      <div className={`border rounded-md overflow-hidden ${readOnly ? 'bg-gray-50' : 'bg-white'}`}>
         <ReactQuill 
           theme="snow"
           value={value}
           onChange={handleChange}
           modules={modules}
           formats={formats}
-          placeholder={placeholder}
           readOnly={readOnly}
-          style={{ height: '100%' }}
+          placeholder={placeholder}
+          style={{ height }}
         />
       </div>
       
-      {attachmentsEnabled && !readOnly && (
-        <div className="flex mt-2 gap-2">
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => handleFileUpload(url => {
-              // Insert a file attachment link
-              const fileName = url.split('/').pop() || 'Attachment';
-              const link = `<a href="${url}" target="_blank" class="file-attachment"><span class="attachment-icon">📎</span> ${fileName}</a>`;
-              const quillEditor = (document.querySelector('.quill') as any)?.getEditor();
-              
-              if (quillEditor) {
-                const range = quillEditor.getSelection();
-                quillEditor.clipboard.dangerouslyPasteHTML(range?.index || 0, link);
-              }
-            })}
-          >
-            <Paperclip className="h-4 w-4 mr-1" />
-            Attach File
-          </Button>
-          
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={handleImageUpload}
-          >
-            <Image className="h-4 w-4 mr-1" />
-            Add Image
-          </Button>
-          
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              const url = prompt('Enter link URL:');
-              if (url) {
-                const quillEditor = (document.querySelector('.quill') as any)?.getEditor();
-                if (quillEditor) {
-                  const range = quillEditor.getSelection();
-                  const linkText = window.getSelection()?.toString() || url;
-                  quillEditor.clipboard.dangerouslyPasteHTML(
-                    range?.index || 0,
-                    `<a href="${url}" target="_blank">${linkText}</a>`
-                  );
-                }
-              }
-            }}
-          >
-            <Link className="h-4 w-4 mr-1" />
-            Add Link
-          </Button>
-          
-          {onSave && (
-            <Button
+      {/* Attachments section */}
+      <div className="mt-4">
+        <div className="flex items-center justify-between mb-2">
+          <h3 className="text-sm font-medium text-gray-700">Attachments</h3>
+          {!readOnly && (
+            <button
               type="button"
-              variant="default"
-              size="sm"
-              onClick={handleSave}
-              className="ml-auto"
+              onClick={handleFileClick}
+              disabled={isUploading}
+              className="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
             >
-              <Save className="h-4 w-4 mr-1" />
-              Save
-            </Button>
+              <Paperclip className="h-4 w-4 mr-1" />
+              {isUploading ? 'Uploading...' : 'Attach File'}
+            </button>
           )}
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileChange}
+            className="hidden"
+          />
         </div>
-      )}
-      
-      <style jsx global>{`
-        .rich-text-editor .ql-container {
-          border-bottom-left-radius: 0.375rem;
-          border-bottom-right-radius: 0.375rem;
-          background: #fff;
-        }
         
-        .rich-text-editor .ql-toolbar {
-          border-top-left-radius: 0.375rem;
-          border-top-right-radius: 0.375rem;
-          background: #f9fafb;
-          border-bottom: 1px solid #e5e7eb;
-        }
-        
-        .rich-text-editor .ql-editor {
-          min-height: 150px;
-          font-size: 0.875rem;
-          line-height: 1.5;
-        }
-        
-        .file-attachment {
-          display: inline-flex;
-          align-items: center;
-          background: #f3f4f6;
-          padding: 4px 8px;
-          border-radius: 4px;
-          margin: 4px 0;
-          color: #374151;
-          text-decoration: none;
-        }
-        
-        .attachment-icon {
-          margin-right: 4px;
-        }
-      `}</style>
+        {files.length > 0 ? (
+          <ul className="divide-y divide-gray-200 border rounded-md overflow-hidden">
+            {files.map((file) => (
+              <li key={file.id} className="flex items-center justify-between py-3 px-4 hover:bg-gray-50">
+                <div className="flex items-center">
+                  {getFileIcon(file.type)}
+                  <div className="ml-3">
+                    <p className="text-sm font-medium text-gray-900 truncate max-w-xs">
+                      {file.name}
+                    </p>
+                    <p className="text-xs text-gray-500">{formatFileSize(file.size)}</p>
+                  </div>
+                </div>
+                <div className="flex items-center">
+                  <a 
+                    href={file.url} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:text-blue-800 text-xs mr-4"
+                  >
+                    View
+                  </a>
+                  {!readOnly && (
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveFile(file.id)}
+                      className="text-gray-400 hover:text-red-500"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  )}
+                </div>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <div className="text-center py-6 border border-dashed rounded-md">
+            <Paperclip className="h-8 w-8 text-gray-400 mx-auto" />
+            <p className="mt-1 text-sm text-gray-500">
+              {readOnly 
+                ? 'No attachments available' 
+                : 'Attach files to this test case by clicking the button above'
+              }
+            </p>
+          </div>
+        )}
+      </div>
+
+      {/* Custom styles for the Quill editor */}
+      <style jsx global>
+        {`
+          .ql-editor {
+            min-height: ${typeof height === 'number' ? height - 42 : height};
+            font-size: 0.875rem;
+            line-height: 1.5;
+          }
+          
+          .ql-toolbar {
+            border-bottom: 1px solid #e5e7eb;
+          }
+          
+          .ql-container {
+            font-family: inherit;
+          }
+          
+          /* Make sure the editor takes the specified height */
+          .quill, .ql-container {
+            height: auto !important;
+          }
+        `}
+      </style>
     </div>
   );
 };
+
+export default RichTextEditor;
