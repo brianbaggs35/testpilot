@@ -4,9 +4,9 @@ import {
   testResults, 
   testCases, 
   testSuites, 
-  testSuiteTestCases,
+  testSuitesTestCases,
   testPlans,
-  testPlanTestCases,
+  testPlansTestCases,
   failureTracking,
   notifications,
   reportTemplates,
@@ -54,16 +54,16 @@ export interface IStorage {
   getTestRun(id: number): Promise<TestRun | undefined>;
   getTestRuns(limit?: number): Promise<TestRun[]>;
   updateTestRun(id: number, data: Partial<InsertTestRun>): Promise<TestRun | undefined>;
-  deleteTestRun(id: number): Promise<boolean>;
+  deleteTestRun(id: number): Promise<void>;
   
-  // Test suite operations (for organizing test cases in folders)
+  // Test suite operations
   createTestSuite(suite: InsertTestSuite): Promise<TestSuite>;
   getTestSuite(id: number): Promise<TestSuite | undefined>;
   getTestSuites(parentId?: number): Promise<TestSuite[]>;
   updateTestSuite(id: number, data: Partial<InsertTestSuite>): Promise<TestSuite | undefined>;
-  deleteTestSuite(id: number): Promise<boolean>;
-  addTestCasesToSuite(suiteId: number, testCaseIds: number[]): Promise<boolean>;
-  removeTestCasesFromSuite(suiteId: number, testCaseIds: number[]): Promise<boolean>;
+  deleteTestSuite(id: number): Promise<void>;
+  addTestCasesToSuite(suiteId: number, testCaseIds: number[]): Promise<void>;
+  removeTestCasesFromSuite(suiteId: number, testCaseIds: number[]): Promise<void>;
   getTestCasesForSuite(suiteId: number): Promise<TestCase[]>;
   
   // Test case operations
@@ -71,7 +71,7 @@ export interface IStorage {
   getTestCase(id: number): Promise<TestCase | undefined>;
   getTestCases(type?: string, search?: string, limit?: number): Promise<TestCase[]>;
   updateTestCase(id: number, data: Partial<InsertTestCase>): Promise<TestCase | undefined>;
-  deleteTestCase(id: number): Promise<boolean>;
+  deleteTestCase(id: number): Promise<void>;
   
   // Test result operations
   createTestResult(result: InsertTestResult): Promise<TestResult>;
@@ -79,7 +79,7 @@ export interface IStorage {
   getTestResultsByRunId(runId: number): Promise<TestResult[]>;
   getTestResultHistory(testCaseId: number, limit?: number): Promise<TestResult[]>;
   
-  // Failure tracking operations (kanban board)
+  // Failure tracking operations
   createFailureTracking(tracking: InsertFailureTracking): Promise<FailureTracking>;
   getFailureTracking(id: number): Promise<FailureTracking | undefined>;
   getFailureTrackingByStatus(status: string): Promise<FailureTracking[]>;
@@ -91,24 +91,15 @@ export interface IStorage {
   getTestPlan(id: number): Promise<TestPlan | undefined>;
   getTestPlans(status?: string): Promise<TestPlan[]>;
   updateTestPlan(id: number, data: Partial<InsertTestPlan>): Promise<TestPlan | undefined>;
-  addTestCasesToPlan(planId: number, testCaseIds: number[]): Promise<boolean>;
-  removeTestCasesFromPlan(planId: number, testCaseIds: number[]): Promise<boolean>;
+  addTestCasesToPlan(planId: number, testCaseIds: number[]): Promise<void>;
+  removeTestCasesFromPlan(planId: number, testCaseIds: number[]): Promise<void>;
   getTestCasesForPlan(planId: number): Promise<TestCase[]>;
-  
-  // Comment operations for collaboration on test cases
-  createComment(comment: InsertComment): Promise<Comment>;
-  getComment(id: number): Promise<Comment | undefined>;
-  getCommentsByTestCase(testCaseId: number): Promise<Comment[]>;
-  getCommentsByUser(userId: string): Promise<Comment[]>;
-  getCommentReplies(parentId: number): Promise<Comment[]>;
-  updateComment(id: number, content: string): Promise<Comment | undefined>;
-  deleteComment(id: number): Promise<boolean>;
   
   // Notification operations
   createNotification(notification: InsertNotification): Promise<Notification>;
   getNotificationsForUser(userId: string, read?: boolean): Promise<Notification[]>;
-  markNotificationAsRead(id: number): Promise<boolean>;
-  markAllNotificationsAsRead(userId: string): Promise<boolean>;
+  markNotificationAsRead(id: number): Promise<void>;
+  markAllNotificationsAsRead(userId: string): Promise<void>;
   
   // Report operations
   createReportTemplate(template: InsertReportTemplate): Promise<ReportTemplate>;
@@ -116,6 +107,15 @@ export interface IStorage {
   createReport(report: InsertReport): Promise<Report>;
   getReport(id: number): Promise<Report | undefined>;
   getReportsByUser(userId: string): Promise<Report[]>;
+  
+  // Comment operations
+  createComment(comment: InsertComment): Promise<Comment>;
+  getComment(id: number): Promise<Comment | undefined>;
+  getCommentsByTestCase(testCaseId: number): Promise<Comment[]>;
+  getCommentsByUser(userId: string): Promise<Comment[]>;
+  getCommentReplies(parentId: number): Promise<Comment[]>;
+  updateComment(id: number, content: string): Promise<Comment | undefined>;
+  deleteComment(id: number): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -124,25 +124,22 @@ export class DatabaseStorage implements IStorage {
     const [user] = await db.select().from(users).where(eq(users.id, id));
     return user;
   }
-
+  
   async getUserByUsername(username: string): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.username, username));
     return user;
   }
-
+  
   async getUserByEmail(email: string): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.email, email));
     return user;
   }
-
-  async createUser(userData: UpsertUser): Promise<User> {
-    const [user] = await db
-      .insert(users)
-      .values(userData)
-      .returning();
-    return user;
+  
+  async createUser(user: UpsertUser): Promise<User> {
+    const [newUser] = await db.insert(users).values(user).returning();
+    return newUser;
   }
-
+  
   async upsertUser(userData: UpsertUser): Promise<User> {
     const [user] = await db
       .insert(users)
@@ -151,17 +148,17 @@ export class DatabaseStorage implements IStorage {
         target: users.id,
         set: {
           ...userData,
-          updatedAt: new Date()
-        }
+          updatedAt: new Date(),
+        },
       })
       .returning();
     return user;
   }
-
+  
   async getUsersByRole(role: string): Promise<User[]> {
     return db.select().from(users).where(eq(users.role, role));
   }
-
+  
   async updateUserRole(id: string, role: string): Promise<User | undefined> {
     const [user] = await db
       .update(users)
@@ -170,7 +167,7 @@ export class DatabaseStorage implements IStorage {
       .returning();
     return user;
   }
-
+  
   async updateUserPreferences(id: string, preferences: any): Promise<User | undefined> {
     const [user] = await db
       .update(users)
@@ -179,29 +176,20 @@ export class DatabaseStorage implements IStorage {
       .returning();
     return user;
   }
-
+  
   // Test run operations
   async createTestRun(run: InsertTestRun): Promise<TestRun> {
-    const [testRun] = await db
-      .insert(testRuns)
-      .values(run)
-      .returning();
+    const [testRun] = await db.insert(testRuns).values(run).returning();
     return testRun;
   }
-
+  
   async getTestRun(id: number): Promise<TestRun | undefined> {
-    const [testRun] = await db
-      .select()
-      .from(testRuns)
-      .where(eq(testRuns.id, id));
+    const [testRun] = await db.select().from(testRuns).where(eq(testRuns.id, id));
     return testRun;
   }
-
+  
   async getTestRuns(limit?: number): Promise<TestRun[]> {
-    let query = db
-      .select()
-      .from(testRuns)
-      .orderBy(desc(testRuns.createdAt));
+    let query = db.select().from(testRuns).orderBy(desc(testRuns.createdAt));
     
     if (limit) {
       query = query.limit(limit);
@@ -209,7 +197,7 @@ export class DatabaseStorage implements IStorage {
     
     return query;
   }
-
+  
   async updateTestRun(id: number, data: Partial<InsertTestRun>): Promise<TestRun | undefined> {
     const [testRun] = await db
       .update(testRuns)
@@ -218,47 +206,30 @@ export class DatabaseStorage implements IStorage {
       .returning();
     return testRun;
   }
-
-  async deleteTestRun(id: number): Promise<boolean> {
-    const result = await db
-      .delete(testRuns)
-      .where(eq(testRuns.id, id));
-    return true;
+  
+  async deleteTestRun(id: number): Promise<void> {
+    await db.delete(testRuns).where(eq(testRuns.id, id));
   }
-
+  
   // Test suite operations
   async createTestSuite(suite: InsertTestSuite): Promise<TestSuite> {
-    const [testSuite] = await db
-      .insert(testSuites)
-      .values(suite)
-      .returning();
+    const [testSuite] = await db.insert(testSuites).values(suite).returning();
     return testSuite;
   }
-
+  
   async getTestSuite(id: number): Promise<TestSuite | undefined> {
-    const [testSuite] = await db
-      .select()
-      .from(testSuites)
-      .where(eq(testSuites.id, id));
+    const [testSuite] = await db.select().from(testSuites).where(eq(testSuites.id, id));
     return testSuite;
   }
-
+  
   async getTestSuites(parentId?: number): Promise<TestSuite[]> {
     if (parentId !== undefined) {
-      return db
-        .select()
-        .from(testSuites)
-        .where(eq(testSuites.parentId, parentId))
-        .orderBy(testSuites.name);
+      return db.select().from(testSuites).where(eq(testSuites.parentId, parentId));
     } else {
-      return db
-        .select()
-        .from(testSuites)
-        .where(isNull(testSuites.parentId))
-        .orderBy(testSuites.name);
+      return db.select().from(testSuites).where(isNull(testSuites.parentId));
     }
   }
-
+  
   async updateTestSuite(id: number, data: Partial<InsertTestSuite>): Promise<TestSuite | undefined> {
     const [testSuite] = await db
       .update(testSuites)
@@ -267,69 +238,54 @@ export class DatabaseStorage implements IStorage {
       .returning();
     return testSuite;
   }
-
-  async deleteTestSuite(id: number): Promise<boolean> {
-    const result = await db
-      .delete(testSuites)
-      .where(eq(testSuites.id, id));
-    return true;
+  
+  async deleteTestSuite(id: number): Promise<void> {
+    await db.delete(testSuites).where(eq(testSuites.id, id));
   }
-
-  async addTestCasesToSuite(suiteId: number, testCaseIds: number[]): Promise<boolean> {
-    for (const testCaseId of testCaseIds) {
-      await db
-        .insert(testSuiteTestCases)
-        .values({
-          testSuiteId: suiteId,
-          testCaseId
-        })
-        .onConflictDoNothing();
-    }
-    return true;
+  
+  async addTestCasesToSuite(suiteId: number, testCaseIds: number[]): Promise<void> {
+    const values = testCaseIds.map(testCaseId => ({
+      suiteId,
+      testCaseId,
+      order: 0 // Default order, can be updated later
+    }));
+    
+    await db.insert(testSuitesTestCases).values(values).onConflictDoNothing({
+      target: [testSuitesTestCases.suiteId, testSuitesTestCases.testCaseId]
+    });
   }
-
-  async removeTestCasesFromSuite(suiteId: number, testCaseIds: number[]): Promise<boolean> {
-    await db
-      .delete(testSuiteTestCases)
-      .where(
-        and(
-          eq(testSuiteTestCases.testSuiteId, suiteId),
-          inArray(testSuiteTestCases.testCaseId, testCaseIds)
-        )
-      );
-    return true;
+  
+  async removeTestCasesFromSuite(suiteId: number, testCaseIds: number[]): Promise<void> {
+    await db.delete(testSuitesTestCases)
+      .where(and(
+        eq(testSuitesTestCases.suiteId, suiteId),
+        inArray(testSuitesTestCases.testCaseId, testCaseIds)
+      ));
   }
-
+  
   async getTestCasesForSuite(suiteId: number): Promise<TestCase[]> {
-    const result = await db
-      .select({
-        testCase: testCases
-      })
-      .from(testSuiteTestCases)
-      .innerJoin(testCases, eq(testSuiteTestCases.testCaseId, testCases.id))
-      .where(eq(testSuiteTestCases.testSuiteId, suiteId))
-      .orderBy(testSuiteTestCases.position);
+    const result = await db.select({
+      testCase: testCases
+    })
+    .from(testSuitesTestCases)
+    .innerJoin(testCases, eq(testSuitesTestCases.testCaseId, testCases.id))
+    .where(eq(testSuitesTestCases.suiteId, suiteId))
+    .orderBy(testSuitesTestCases.order);
     
     return result.map(r => r.testCase);
   }
-
+  
   // Test case operations
   async createTestCase(testCase: InsertTestCase): Promise<TestCase> {
-    const [newTestCase] = await db
-      .insert(testCases)
-      .values(testCase)
-      .returning();
+    const [newTestCase] = await db.insert(testCases).values(testCase).returning();
     return newTestCase;
   }
-
+  
   async getTestCase(id: number): Promise<TestCase | undefined> {
-    const [testCase] = await db
-      .select()
-      .from(testCases)
-      .where(eq(testCases.id, id));
+    const [testCase] = await db.select().from(testCases).where(eq(testCases.id, id));
     return testCase;
   }
-
+  
   async getTestCases(type?: string, search?: string, limit?: number): Promise<TestCase[]> {
     let query = db.select().from(testCases);
     
@@ -338,12 +294,10 @@ export class DatabaseStorage implements IStorage {
     }
     
     if (search) {
-      query = query.where(
-        or(
-          like(testCases.name, `%${search}%`),
-          like(testCases.description || '', `%${search}%`)
-        )
-      );
+      query = query.where(or(
+        like(testCases.title, `%${search}%`),
+        like(testCases.description || '', `%${search}%`)
+      ));
     }
     
     query = query.orderBy(desc(testCases.updatedAt));
@@ -354,7 +308,7 @@ export class DatabaseStorage implements IStorage {
     
     return query;
   }
-
+  
   async updateTestCase(id: number, data: Partial<InsertTestCase>): Promise<TestCase | undefined> {
     const [testCase] = await db
       .update(testCases)
@@ -363,42 +317,28 @@ export class DatabaseStorage implements IStorage {
       .returning();
     return testCase;
   }
-
-  async deleteTestCase(id: number): Promise<boolean> {
-    await db
-      .delete(testCases)
-      .where(eq(testCases.id, id));
-    return true;
+  
+  async deleteTestCase(id: number): Promise<void> {
+    await db.delete(testCases).where(eq(testCases.id, id));
   }
-
+  
   // Test result operations
   async createTestResult(result: InsertTestResult): Promise<TestResult> {
-    const [testResult] = await db
-      .insert(testResults)
-      .values(result)
-      .returning();
+    const [testResult] = await db.insert(testResults).values(result).returning();
     return testResult;
   }
-
+  
   async getTestResult(id: number): Promise<TestResult | undefined> {
-    const [testResult] = await db
-      .select()
-      .from(testResults)
-      .where(eq(testResults.id, id));
+    const [testResult] = await db.select().from(testResults).where(eq(testResults.id, id));
     return testResult;
   }
-
+  
   async getTestResultsByRunId(runId: number): Promise<TestResult[]> {
-    return db
-      .select()
-      .from(testResults)
-      .where(eq(testResults.testRunId, runId))
-      .orderBy(testResults.name);
+    return db.select().from(testResults).where(eq(testResults.testRunId, runId));
   }
-
+  
   async getTestResultHistory(testCaseId: number, limit?: number): Promise<TestResult[]> {
-    let query = db
-      .select()
+    let query = db.select()
       .from(testResults)
       .where(eq(testResults.testCaseId, testCaseId))
       .orderBy(desc(testResults.createdAt));
@@ -409,40 +349,26 @@ export class DatabaseStorage implements IStorage {
     
     return query;
   }
-
+  
   // Failure tracking operations
   async createFailureTracking(tracking: InsertFailureTracking): Promise<FailureTracking> {
-    const [failureTrack] = await db
-      .insert(failureTracking)
-      .values(tracking)
-      .returning();
+    const [failureTrack] = await db.insert(failureTracking).values(tracking).returning();
     return failureTrack;
   }
-
+  
   async getFailureTracking(id: number): Promise<FailureTracking | undefined> {
-    const [failure] = await db
-      .select()
-      .from(failureTracking)
-      .where(eq(failureTracking.id, id));
+    const [failure] = await db.select().from(failureTracking).where(eq(failureTracking.id, id));
     return failure;
   }
-
+  
   async getFailureTrackingByStatus(status: string): Promise<FailureTracking[]> {
-    return db
-      .select()
-      .from(failureTracking)
-      .where(eq(failureTracking.status, status))
-      .orderBy(desc(failureTracking.updatedAt));
+    return db.select().from(failureTracking).where(eq(failureTracking.status, status));
   }
-
+  
   async getFailureTrackingByAssignee(userId: string): Promise<FailureTracking[]> {
-    return db
-      .select()
-      .from(failureTracking)
-      .where(eq(failureTracking.assignedToId, userId))
-      .orderBy(failureTracking.status, desc(failureTracking.updatedAt));
+    return db.select().from(failureTracking).where(eq(failureTracking.assignedToId, userId));
   }
-
+  
   async updateFailureTracking(id: number, data: Partial<InsertFailureTracking>): Promise<FailureTracking | undefined> {
     const [failure] = await db
       .update(failureTracking)
@@ -451,34 +377,26 @@ export class DatabaseStorage implements IStorage {
       .returning();
     return failure;
   }
-
+  
   // Test plan operations
   async createTestPlan(plan: InsertTestPlan): Promise<TestPlan> {
-    const [testPlan] = await db
-      .insert(testPlans)
-      .values(plan)
-      .returning();
+    const [testPlan] = await db.insert(testPlans).values(plan).returning();
     return testPlan;
   }
-
+  
   async getTestPlan(id: number): Promise<TestPlan | undefined> {
-    const [testPlan] = await db
-      .select()
-      .from(testPlans)
-      .where(eq(testPlans.id, id));
+    const [testPlan] = await db.select().from(testPlans).where(eq(testPlans.id, id));
     return testPlan;
   }
-
+  
   async getTestPlans(status?: string): Promise<TestPlan[]> {
-    let query = db.select().from(testPlans);
-    
     if (status) {
-      query = query.where(eq(testPlans.status, status));
+      return db.select().from(testPlans).where(eq(testPlans.status, status));
+    } else {
+      return db.select().from(testPlans).orderBy(desc(testPlans.updatedAt));
     }
-    
-    return query.orderBy(desc(testPlans.updatedAt));
   }
-
+  
   async updateTestPlan(id: number, data: Partial<InsertTestPlan>): Promise<TestPlan | undefined> {
     const [testPlan] = await db
       .update(testPlans)
@@ -487,59 +405,48 @@ export class DatabaseStorage implements IStorage {
       .returning();
     return testPlan;
   }
-
-  async addTestCasesToPlan(planId: number, testCaseIds: number[]): Promise<boolean> {
-    for (const testCaseId of testCaseIds) {
-      await db
-        .insert(testPlanTestCases)
-        .values({
-          testPlanId: planId,
-          testCaseId
-        })
-        .onConflictDoNothing();
-    }
-    return true;
+  
+  async addTestCasesToPlan(planId: number, testCaseIds: number[]): Promise<void> {
+    const values = testCaseIds.map(testCaseId => ({
+      planId,
+      testCaseId,
+      status: 'not-started',
+      order: 0 // Default order, can be updated later
+    }));
+    
+    await db.insert(testPlansTestCases).values(values).onConflictDoNothing({
+      target: [testPlansTestCases.planId, testPlansTestCases.testCaseId]
+    });
   }
-
-  async removeTestCasesFromPlan(planId: number, testCaseIds: number[]): Promise<boolean> {
-    await db
-      .delete(testPlanTestCases)
-      .where(
-        and(
-          eq(testPlanTestCases.testPlanId, planId),
-          inArray(testPlanTestCases.testCaseId, testCaseIds)
-        )
-      );
-    return true;
+  
+  async removeTestCasesFromPlan(planId: number, testCaseIds: number[]): Promise<void> {
+    await db.delete(testPlansTestCases)
+      .where(and(
+        eq(testPlansTestCases.planId, planId),
+        inArray(testPlansTestCases.testCaseId, testCaseIds)
+      ));
   }
-
+  
   async getTestCasesForPlan(planId: number): Promise<TestCase[]> {
-    const result = await db
-      .select({
-        testCase: testCases
-      })
-      .from(testPlanTestCases)
-      .innerJoin(testCases, eq(testPlanTestCases.testCaseId, testCases.id))
-      .where(eq(testPlanTestCases.testPlanId, planId))
-      .orderBy(testPlanTestCases.position);
+    const result = await db.select({
+      testCase: testCases
+    })
+    .from(testPlansTestCases)
+    .innerJoin(testCases, eq(testPlansTestCases.testCaseId, testCases.id))
+    .where(eq(testPlansTestCases.planId, planId))
+    .orderBy(testPlansTestCases.order);
     
     return result.map(r => r.testCase);
   }
-
+  
   // Notification operations
   async createNotification(notification: InsertNotification): Promise<Notification> {
-    const [newNotification] = await db
-      .insert(notifications)
-      .values(notification)
-      .returning();
+    const [newNotification] = await db.insert(notifications).values(notification).returning();
     return newNotification;
   }
-
+  
   async getNotificationsForUser(userId: string, read?: boolean): Promise<Notification[]> {
-    let query = db
-      .select()
-      .from(notifications)
-      .where(eq(notifications.userId, userId));
+    let query = db.select().from(notifications).where(eq(notifications.userId, userId));
     
     if (read !== undefined) {
       query = query.where(eq(notifications.read, read));
@@ -547,107 +454,69 @@ export class DatabaseStorage implements IStorage {
     
     return query.orderBy(desc(notifications.createdAt));
   }
-
-  async markNotificationAsRead(id: number): Promise<boolean> {
-    await db
-      .update(notifications)
-      .set({ read: true })
-      .where(eq(notifications.id, id));
-    return true;
+  
+  async markNotificationAsRead(id: number): Promise<void> {
+    await db.update(notifications).set({ read: true }).where(eq(notifications.id, id));
   }
-
-  async markAllNotificationsAsRead(userId: string): Promise<boolean> {
-    await db
-      .update(notifications)
-      .set({ read: true })
-      .where(and(
-        eq(notifications.userId, userId),
-        eq(notifications.read, false)
-      ));
-    return true;
+  
+  async markAllNotificationsAsRead(userId: string): Promise<void> {
+    await db.update(notifications).set({ read: true }).where(eq(notifications.userId, userId));
   }
-
+  
   // Report operations
   async createReportTemplate(template: InsertReportTemplate): Promise<ReportTemplate> {
-    const [newTemplate] = await db
-      .insert(reportTemplates)
-      .values(template)
-      .returning();
+    const [newTemplate] = await db.insert(reportTemplates).values(template).returning();
     return newTemplate;
   }
-
+  
   async getReportTemplates(): Promise<ReportTemplate[]> {
-    return db
-      .select()
-      .from(reportTemplates)
-      .orderBy(reportTemplates.name);
+    return db.select().from(reportTemplates).orderBy(reportTemplates.name);
   }
-
+  
   async createReport(report: InsertReport): Promise<Report> {
-    const [newReport] = await db
-      .insert(reports)
-      .values(report)
-      .returning();
+    const [newReport] = await db.insert(reports).values(report).returning();
     return newReport;
   }
-
+  
   async getReport(id: number): Promise<Report | undefined> {
-    const [report] = await db
-      .select()
-      .from(reports)
-      .where(eq(reports.id, id));
+    const [report] = await db.select().from(reports).where(eq(reports.id, id));
     return report;
   }
-
+  
   async getReportsByUser(userId: string): Promise<Report[]> {
-    return db
-      .select()
-      .from(reports)
-      .where(eq(reports.createdById, userId))
-      .orderBy(desc(reports.createdAt));
+    return db.select().from(reports).where(eq(reports.createdById, userId)).orderBy(desc(reports.createdAt));
   }
-
+  
   // Comment operations
   async createComment(comment: InsertComment): Promise<Comment> {
-    const [newComment] = await db
-      .insert(comments)
-      .values(comment)
-      .returning();
+    const [newComment] = await db.insert(comments).values(comment).returning();
     return newComment;
   }
-
+  
   async getComment(id: number): Promise<Comment | undefined> {
-    const [comment] = await db
-      .select()
-      .from(comments)
-      .where(eq(comments.id, id));
+    const [comment] = await db.select().from(comments).where(eq(comments.id, id));
     return comment;
   }
-
+  
   async getCommentsByTestCase(testCaseId: number): Promise<Comment[]> {
     return db
       .select()
       .from(comments)
-      .where(eq(comments.testCaseId, testCaseId))
+      .where(and(
+        eq(comments.testCaseId, testCaseId),
+        isNull(comments.parentId)
+      ))
       .orderBy(comments.createdAt);
   }
-
+  
   async getCommentsByUser(userId: string): Promise<Comment[]> {
-    return db
-      .select()
-      .from(comments)
-      .where(eq(comments.authorId, userId))
-      .orderBy(desc(comments.createdAt));
+    return db.select().from(comments).where(eq(comments.authorId, userId)).orderBy(desc(comments.createdAt));
   }
-
+  
   async getCommentReplies(parentId: number): Promise<Comment[]> {
-    return db
-      .select()
-      .from(comments)
-      .where(eq(comments.parentId, parentId))
-      .orderBy(comments.createdAt);
+    return db.select().from(comments).where(eq(comments.parentId, parentId)).orderBy(comments.createdAt);
   }
-
+  
   async updateComment(id: number, content: string): Promise<Comment | undefined> {
     const [comment] = await db
       .update(comments)
@@ -656,12 +525,9 @@ export class DatabaseStorage implements IStorage {
       .returning();
     return comment;
   }
-
-  async deleteComment(id: number): Promise<boolean> {
-    await db
-      .delete(comments)
-      .where(eq(comments.id, id));
-    return true;
+  
+  async deleteComment(id: number): Promise<void> {
+    await db.delete(comments).where(eq(comments.id, id));
   }
 }
 
