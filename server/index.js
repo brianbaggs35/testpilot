@@ -67,8 +67,12 @@ app.get('/api/status', (req, res) => {
   });
 });
 
-// Serve main dashboard page
-app.get('/', async (req, res) => {
+// Serve static files from the client/dist directory when in production
+// This helps with client-side routing
+app.use(express.static(path.join(__dirname, '../client/dist')));
+
+// Serve main dashboard page and handle all routes for client-side routing
+app.get('*', async (req, res) => {
   // Get real data from the database
   let testCases = [];
   let testRuns = [];
@@ -1127,8 +1131,8 @@ app.get('/', async (req, res) => {
 // Start the server
 async function startServer() {
   try {
-    // First, initialize the database
-    await initializeDatabase();
+    // First, check if database is initialized and only create tables if they don't exist
+    const dbInitResult = await initializeDatabase();
     
     // Then start the server
     server.listen(port, '0.0.0.0', () => {
