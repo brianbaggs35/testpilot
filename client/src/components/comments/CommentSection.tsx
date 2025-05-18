@@ -1,387 +1,394 @@
-import React, { useState } from 'react';
-import { useQuery, useMutation } from '@tanstack/react-query';
+import React, { useState, useEffect } from 'react';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { format } from 'date-fns';
+import { User, MessageSquare, Send, Trash2, Edit2, Clock, Reply } from 'lucide-react';
 import { queryClient } from '../../lib/queryClient';
-import { Avatar } from '../ui/avatar';
-import { Button } from '../ui/button';
-import { Textarea } from '../ui/textarea';
-import { Card } from '../ui/card';
-import { Reply, Edit, Trash, Send } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
-import { formatDistanceToNow } from 'date-fns';
+
+interface Author {
+  id: string;
+  name: string;
+  profileImageUrl?: string;
+}
 
 interface Comment {
   id: number;
   content: string;
-  authorId: string;
-  authorName?: string;
-  authorAvatar?: string;
-  parentId?: number;
   testCaseId: number;
-  createdAt: Date;
-  updatedAt: Date;
+  parentId?: number;
+  author: Author;
+  createdAt: string;
+  updatedAt: string;
+  replies?: Comment[];
 }
 
 interface CommentSectionProps {
-  resourceId: number;
-  resourceType: 'test-case' | 'test-run' | 'failure';
+  testCaseId: number;
+  className?: string;
 }
 
-export function CommentSection({ resourceId, resourceType }: CommentSectionProps) {
-  const { user } = useAuth();
-  const [newComment, setNewComment] = useState('');
-  const [editingComment, setEditingComment] = useState<number | null>(null);
-  const [editedContent, setEditedContent] = useState('');
-  const [replyingTo, setReplyingTo] = useState<number | null>(null);
-  const [replyContent, setReplyContent] = useState('');
+export const CommentSection: React.FC<CommentSectionProps> = ({
+  testCaseId,
+  className = '',
+}) => {
+  const { user, isAuthenticated } = useAuth();
+  const [commentText, setCommentText] = useState('');
+  const [editingCommentId, setEditingCommentId] = useState<number | null>(null);
+  const [editText, setEditText] = useState('');
+  const [replyToId, setReplyToId] = useState<number | null>(null);
+  const [replyText, setReplyText] = useState('');
 
   // Fetch comments
-  const { data: comments = [], isLoading } = useQuery({
-    queryKey: [`/api/${resourceType}s/${resourceId}/comments`],
+  const {
+    data: comments,
+    isLoading,
+    isError,
+    error,
+  } = useQuery<Comment[]>({
+    queryKey: ['/api/test-cases', testCaseId, 'comments'],
+    enabled: !!testCaseId,
   });
 
-  // Create comment mutation
-  const createCommentMutation = useMutation({
-    mutationFn: async (content: string) => {
-      return fetch('/api/comments', {
+  // Add comment mutation
+  const addCommentMutation = useMutation({
+    mutationFn: async (data: { content: string; testCaseId: number; parentId?: number }) => {
+      const response = await fetch('/api/comments', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          content,
-          testCaseId: resourceType === 'test-case' ? resourceId : undefined,
-          testRunId: resourceType === 'test-run' ? resourceId : undefined,
-          failureId: resourceType === 'failure' ? resourceId : undefined,
-        }),
-      }).then(res => {
-        if (!res.ok) throw new Error('Failed to create comment');
-        return res.json();
+        body: JSON.stringify(data),
       });
+      
+      if (!response.ok) {
+        throw new Error('Failed to add comment');
+      }
+      
+      return response.json();
     },
     onSuccess: () => {
-      setNewComment('');
-      queryClient.invalidateQueries({ queryKey: [`/api/${resourceType}s/${resourceId}/comments`] });
+      queryClient.invalidateQueries({ queryKey: ['/api/test-cases', testCaseId, 'comments'] });
+      setCommentText('');
+      setReplyText('');
+      setReplyToId(null);
     },
   });
 
-  // Create reply mutation
-  const createReplyMutation = useMutation({
-    mutationFn: async ({ content, parentId }: { content: string; parentId: number }) => {
-      return fetch('/api/comments', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          content,
-          parentId,
-          testCaseId: resourceType === 'test-case' ? resourceId : undefined,
-          testRunId: resourceType === 'test-run' ? resourceId : undefined,
-          failureId: resourceType === 'failure' ? resourceId : undefined,
-        }),
-      }).then(res => {
-        if (!res.ok) throw new Error('Failed to create reply');
-        return res.json();
-      });
-    },
-    onSuccess: () => {
-      setReplyingTo(null);
-      setReplyContent('');
-      queryClient.invalidateQueries({ queryKey: [`/api/${resourceType}s/${resourceId}/comments`] });
-    },
-  });
-
-  // Update comment mutation
-  const updateCommentMutation = useMutation({
-    mutationFn: async ({ id, content }: { id: number; content: string }) => {
-      return fetch(`/api/comments/${id}`, {
+  // Edit comment mutation
+  const editCommentMutation = useMutation({
+    mutationFn: async (data: { id: number; content: string }) => {
+      const response = await fetch(`/api/comments/${data.id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          content,
-        }),
-      }).then(res => {
-        if (!res.ok) throw new Error('Failed to update comment');
-        return res.json();
+        body: JSON.stringify({ content: data.content }),
       });
+      
+      if (!response.ok) {
+        throw new Error('Failed to edit comment');
+      }
+      
+      return response.json();
     },
     onSuccess: () => {
-      setEditingComment(null);
-      queryClient.invalidateQueries({ queryKey: [`/api/${resourceType}s/${resourceId}/comments`] });
+      queryClient.invalidateQueries({ queryKey: ['/api/test-cases', testCaseId, 'comments'] });
+      setEditingCommentId(null);
+      setEditText('');
     },
   });
 
   // Delete comment mutation
   const deleteCommentMutation = useMutation({
-    mutationFn: async (id: number) => {
-      return fetch(`/api/comments/${id}`, {
+    mutationFn: async (commentId: number) => {
+      const response = await fetch(`/api/comments/${commentId}`, {
         method: 'DELETE',
-      }).then(res => {
-        if (!res.ok) throw new Error('Failed to delete comment');
-        return true;
       });
+      
+      if (!response.ok) {
+        throw new Error('Failed to delete comment');
+      }
+      
+      return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [`/api/${resourceType}s/${resourceId}/comments`] });
+      queryClient.invalidateQueries({ queryKey: ['/api/test-cases', testCaseId, 'comments'] });
     },
   });
 
-  const handleSubmitComment = () => {
-    if (!newComment.trim()) return;
-    createCommentMutation.mutate(newComment);
+  const handleAddComment = () => {
+    if (!commentText.trim() || !isAuthenticated) return;
+    
+    addCommentMutation.mutate({
+      content: commentText,
+      testCaseId,
+    });
   };
 
-  const handleSubmitReply = (parentId: number) => {
-    if (!replyContent.trim()) return;
-    createReplyMutation.mutate({ content: replyContent, parentId });
+  const handleAddReply = () => {
+    if (!replyText.trim() || !replyToId || !isAuthenticated) return;
+    
+    addCommentMutation.mutate({
+      content: replyText,
+      testCaseId,
+      parentId: replyToId,
+    });
   };
 
-  const handleEditComment = (comment: Comment) => {
-    setEditingComment(comment.id);
-    setEditedContent(comment.content);
+  const handleEditComment = () => {
+    if (!editText.trim() || !editingCommentId || !isAuthenticated) return;
+    
+    editCommentMutation.mutate({
+      id: editingCommentId,
+      content: editText,
+    });
   };
 
-  const handleUpdateComment = (id: number) => {
-    if (!editedContent.trim()) return;
-    updateCommentMutation.mutate({ id, content: editedContent });
-  };
-
-  const handleDeleteComment = (id: number) => {
+  const handleDeleteComment = (commentId: number) => {
+    if (!isAuthenticated) return;
+    
     if (window.confirm('Are you sure you want to delete this comment?')) {
-      deleteCommentMutation.mutate(id);
+      deleteCommentMutation.mutate(commentId);
     }
   };
 
-  const toggleReply = (id: number) => {
-    setReplyingTo(replyingTo === id ? null : id);
-    setReplyContent('');
+  const startEditing = (comment: Comment) => {
+    setEditingCommentId(comment.id);
+    setEditText(comment.content);
   };
 
-  const formatDate = (date: Date | string) => {
-    const parsedDate = typeof date === 'string' ? new Date(date) : date;
-    return formatDistanceToNow(parsedDate, { addSuffix: true });
+  const cancelEditing = () => {
+    setEditingCommentId(null);
+    setEditText('');
   };
 
-  // Group comments by parent/child relationships
-  const topLevelComments = comments.filter((comment: Comment) => !comment.parentId);
-  const commentReplies = comments.filter((comment: Comment) => comment.parentId);
-
-  const getRepliesForComment = (commentId: number) => {
-    return commentReplies.filter((reply: Comment) => reply.parentId === commentId);
+  const startReplying = (commentId: number) => {
+    setReplyToId(commentId);
+    setReplyText('');
   };
 
-  if (isLoading) {
-    return <div className="py-4">Loading comments...</div>;
-  }
+  const cancelReplying = () => {
+    setReplyToId(null);
+    setReplyText('');
+  };
 
-  return (
-    <div className="mt-4">
-      <h3 className="text-lg font-medium mb-4">Comments ({comments.length})</h3>
-      
-      {/* New comment form */}
-      <div className="mb-6">
-        <Textarea
-          placeholder="Add a comment..."
-          value={newComment}
-          onChange={(e) => setNewComment(e.target.value)}
-          className="min-h-[80px] mb-2"
-        />
-        <div className="flex justify-end">
-          <Button
-            onClick={handleSubmitComment}
-            disabled={createCommentMutation.isPending || !newComment.trim()}
-          >
-            <Send className="w-4 h-4 mr-2" />
-            {createCommentMutation.isPending ? 'Posting...' : 'Post Comment'}
-          </Button>
-        </div>
-      </div>
-      
-      {/* Comments list */}
-      <div className="space-y-4">
-        {topLevelComments.map((comment: Comment) => (
-          <div key={comment.id} className="comment-thread">
-            <Card className="p-4">
-              <div className="flex items-start gap-3">
-                <Avatar 
-                  src={comment.authorAvatar} 
-                  fallback={comment.authorName?.substring(0, 2) || 'U'}
-                  className="h-8 w-8"
-                />
-                <div className="flex-1">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <span className="font-medium text-sm">
-                        {comment.authorName || 'User ' + comment.authorId}
-                      </span>
-                      <span className="text-gray-500 text-xs ml-2">
-                        {formatDate(comment.createdAt)}
-                      </span>
-                    </div>
-                    {user?.id === comment.authorId && (
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => handleEditComment(comment)}
-                          className="text-gray-500 hover:text-gray-700"
-                        >
-                          <Edit className="h-4 w-4" />
-                        </button>
-                        <button
-                          onClick={() => handleDeleteComment(comment.id)}
-                          className="text-gray-500 hover:text-red-500"
-                        >
-                          <Trash className="h-4 w-4" />
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                  
-                  {editingComment === comment.id ? (
-                    <div className="mt-2">
-                      <Textarea
-                        value={editedContent}
-                        onChange={(e) => setEditedContent(e.target.value)}
-                        className="mb-2"
-                      />
-                      <div className="flex justify-end gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setEditingComment(null)}
-                        >
-                          Cancel
-                        </Button>
-                        <Button
-                          size="sm"
-                          onClick={() => handleUpdateComment(comment.id)}
-                          disabled={updateCommentMutation.isPending}
-                        >
-                          {updateCommentMutation.isPending ? 'Saving...' : 'Save'}
-                        </Button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="mt-1 text-sm whitespace-pre-wrap">
-                      {comment.content}
-                    </div>
-                  )}
+  const formatDate = (dateString: string) => {
+    try {
+      return format(new Date(dateString), 'MMM d, yyyy h:mm a');
+    } catch (error) {
+      return dateString;
+    }
+  };
+
+  const renderComment = (comment: Comment, isReply = false) => {
+    const isEditing = editingCommentId === comment.id;
+    const isReplying = replyToId === comment.id;
+    const canModify = isAuthenticated && user?.id === comment.author.id;
+
+    return (
+      <div key={comment.id} className={`${isReply ? 'ml-10 mt-3' : 'mb-6'}`}>
+        <div className="flex items-start">
+          <div className="flex-shrink-0">
+            {comment.author.profileImageUrl ? (
+              <img
+                src={comment.author.profileImageUrl}
+                alt={comment.author.name}
+                className="h-10 w-10 rounded-full object-cover"
+              />
+            ) : (
+              <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
+                <User className="h-6 w-6 text-gray-500" />
+              </div>
+            )}
+          </div>
+          
+          <div className="ml-3 flex-1">
+            <div className={`bg-white p-3 rounded-lg shadow-sm ${isReply ? 'border border-gray-100' : ''}`}>
+              <div className="flex items-center justify-between mb-1">
+                <span className="font-medium text-gray-900">{comment.author.name}</span>
+                <div className="flex items-center text-xs text-gray-500">
+                  <Clock className="h-3 w-3 mr-1" />
+                  <span>{formatDate(comment.createdAt)}</span>
                 </div>
               </div>
               
-              <div className="mt-2 ml-11">
+              {isEditing ? (
+                <div>
+                  <textarea
+                    value={editText}
+                    onChange={(e) => setEditText(e.target.value)}
+                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                    rows={3}
+                  />
+                  <div className="mt-2 flex justify-end space-x-2">
+                    <button
+                      onClick={cancelEditing}
+                      className="px-3 py-1 text-xs text-gray-700 hover:text-gray-900"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={handleEditComment}
+                      className="px-3 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700"
+                      disabled={editCommentMutation.isPending}
+                    >
+                      {editCommentMutation.isPending ? 'Saving...' : 'Save'}
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <p className="text-gray-700 whitespace-pre-line">{comment.content}</p>
+              )}
+            </div>
+            
+            {!isEditing && (
+              <div className="mt-1 flex items-center space-x-4">
                 <button
-                  onClick={() => toggleReply(comment.id)}
-                  className="flex items-center text-sm text-gray-500 hover:text-gray-700"
+                  onClick={() => startReplying(comment.id)}
+                  className="text-xs text-gray-500 flex items-center hover:text-gray-700"
                 >
                   <Reply className="h-3 w-3 mr-1" />
-                  {replyingTo === comment.id ? 'Cancel' : 'Reply'}
+                  Reply
+                </button>
+                
+                {canModify && (
+                  <>
+                    <button
+                      onClick={() => startEditing(comment)}
+                      className="text-xs text-gray-500 flex items-center hover:text-gray-700"
+                    >
+                      <Edit2 className="h-3 w-3 mr-1" />
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => handleDeleteComment(comment.id)}
+                      className="text-xs text-red-500 flex items-center hover:text-red-700"
+                    >
+                      <Trash2 className="h-3 w-3 mr-1" />
+                      Delete
+                    </button>
+                  </>
+                )}
+              </div>
+            )}
+            
+            {isReplying && (
+              <div className="mt-3">
+                <textarea
+                  value={replyText}
+                  onChange={(e) => setReplyText(e.target.value)}
+                  placeholder="Write a reply..."
+                  className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                  rows={2}
+                />
+                <div className="mt-2 flex justify-end space-x-2">
+                  <button
+                    onClick={cancelReplying}
+                    className="px-3 py-1 text-xs text-gray-700 hover:text-gray-900"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleAddReply}
+                    className="px-3 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700"
+                    disabled={addCommentMutation.isPending || !replyText.trim()}
+                  >
+                    {addCommentMutation.isPending ? 'Sending...' : 'Reply'}
+                  </button>
+                </div>
+              </div>
+            )}
+            
+            {/* Render replies */}
+            {comment.replies && comment.replies.length > 0 && (
+              <div className="mt-3">
+                {comment.replies.map(reply => renderComment(reply, true))}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // Organize comments and replies
+  const organizedComments = React.useMemo(() => {
+    if (!comments) return [];
+    
+    // Find top-level comments
+    const topLevelComments = comments.filter(comment => !comment.parentId);
+    
+    // Collect replies for each top-level comment
+    return topLevelComments.map(comment => {
+      const replies = comments.filter(reply => reply.parentId === comment.id);
+      return {
+        ...comment,
+        replies
+      };
+    });
+  }, [comments]);
+
+  return (
+    <div className={`comment-section bg-gray-50 rounded-lg p-4 ${className}`}>
+      <div className="flex items-center mb-6">
+        <MessageSquare className="h-5 w-5 text-gray-500 mr-2" />
+        <h3 className="text-lg font-medium text-gray-900">Comments</h3>
+        <span className="ml-2 text-sm text-gray-500">
+          {organizedComments?.length || 0} comments
+        </span>
+      </div>
+      
+      {isLoading ? (
+        <div className="flex justify-center py-6">
+          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+        </div>
+      ) : isError ? (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+          Error loading comments. Please try again later.
+        </div>
+      ) : (
+        <>
+          {/* Add comment form */}
+          {isAuthenticated ? (
+            <div className="mb-6">
+              <textarea
+                value={commentText}
+                onChange={(e) => setCommentText(e.target.value)}
+                placeholder="Add a comment..."
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                rows={3}
+              />
+              <div className="mt-2 flex justify-end">
+                <button
+                  onClick={handleAddComment}
+                  disabled={addCommentMutation.isPending || !commentText.trim()}
+                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <Send className="h-4 w-4 mr-1" />
+                  {addCommentMutation.isPending ? 'Posting...' : 'Post Comment'}
                 </button>
               </div>
-              
-              {replyingTo === comment.id && (
-                <div className="mt-3 ml-11">
-                  <Textarea
-                    placeholder="Write a reply..."
-                    value={replyContent}
-                    onChange={(e) => setReplyContent(e.target.value)}
-                    className="mb-2 min-h-[60px]"
-                  />
-                  <div className="flex justify-end">
-                    <Button
-                      size="sm"
-                      onClick={() => handleSubmitReply(comment.id)}
-                      disabled={createReplyMutation.isPending || !replyContent.trim()}
-                    >
-                      {createReplyMutation.isPending ? 'Posting...' : 'Post Reply'}
-                    </Button>
-                  </div>
-                </div>
-              )}
-            </Card>
-            
-            {/* Replies */}
-            <div className="ml-8 mt-2 space-y-2">
-              {getRepliesForComment(comment.id).map((reply: Comment) => (
-                <Card key={reply.id} className="p-3">
-                  <div className="flex items-start gap-3">
-                    <Avatar 
-                      src={reply.authorAvatar} 
-                      fallback={reply.authorName?.substring(0, 2) || 'U'} 
-                      className="h-7 w-7"
-                    />
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <span className="font-medium text-sm">
-                            {reply.authorName || 'User ' + reply.authorId}
-                          </span>
-                          <span className="text-gray-500 text-xs ml-2">
-                            {formatDate(reply.createdAt)}
-                          </span>
-                        </div>
-                        {user?.id === reply.authorId && (
-                          <div className="flex gap-2">
-                            <button
-                              onClick={() => handleEditComment(reply)}
-                              className="text-gray-500 hover:text-gray-700"
-                            >
-                              <Edit className="h-3 w-3" />
-                            </button>
-                            <button
-                              onClick={() => handleDeleteComment(reply.id)}
-                              className="text-gray-500 hover:text-red-500"
-                            >
-                              <Trash className="h-3 w-3" />
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                      
-                      {editingComment === reply.id ? (
-                        <div className="mt-2">
-                          <Textarea
-                            value={editedContent}
-                            onChange={(e) => setEditedContent(e.target.value)}
-                            className="mb-2"
-                          />
-                          <div className="flex justify-end gap-2">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => setEditingComment(null)}
-                            >
-                              Cancel
-                            </Button>
-                            <Button
-                              size="sm"
-                              onClick={() => handleUpdateComment(reply.id)}
-                              disabled={updateCommentMutation.isPending}
-                            >
-                              {updateCommentMutation.isPending ? 'Saving...' : 'Save'}
-                            </Button>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="mt-1 text-sm whitespace-pre-wrap">
-                          {reply.content}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </Card>
-              ))}
             </div>
+          ) : (
+            <div className="mb-6 bg-blue-50 text-blue-700 px-4 py-3 rounded">
+              Please sign in to add comments.
+            </div>
+          )}
+          
+          {/* Comments list */}
+          <div className="space-y-6">
+            {organizedComments.length === 0 ? (
+              <div className="text-center py-10 text-gray-500">
+                No comments yet. Be the first to comment!
+              </div>
+            ) : (
+              organizedComments.map(comment => renderComment(comment))
+            )}
           </div>
-        ))}
-        
-        {topLevelComments.length === 0 && (
-          <div className="text-center py-10 text-gray-500">
-            No comments yet. Be the first to leave a comment!
-          </div>
-        )}
-      </div>
+        </>
+      )}
     </div>
   );
-}
+};
+
+export default CommentSection;
